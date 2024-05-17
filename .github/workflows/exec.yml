@@ -47,6 +47,8 @@ jobs:
 
       - run: php artisan struct:sensor
 
+      - run: rm database/database.sqlite.gpg
+
       - run: |
           gpg --batch \
           --output database/database.sqlite.gpg \
