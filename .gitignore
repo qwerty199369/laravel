@@ -20,3 +20,4 @@ yarn-error.log
 
 
 /database/*.sqlite
+/_*.sh
