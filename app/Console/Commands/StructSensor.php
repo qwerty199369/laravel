@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class StructSensor extends Command
@@ -33,6 +34,13 @@ class StructSensor extends Command
                 $table->text('vv');
                 $table->timestamps();
             });
+        }
+
+        if (DB::table('sensor')->where('kk', 'test001')->doesntExist()) {
+            DB::table('sensor')->insert([
+                'kk' => 'test001',
+                'vv' => 'test001 text',
+            ]);
         }
     }
 }
