@@ -31,15 +31,17 @@ jobs:
 
       - run: git pull
 
-      - run: gpg --batch \
-          --output database/database.sqlite \
-          --passphrase ${{ secrets.GPG_PASSPHRASE_1 }} \
-          --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
-          --decrypt database/database.sqlite.gpg
+      - run: |
+          gpg --batch \
+            --output database/database.sqlite \
+            --passphrase ${{ secrets.GPG_PASSPHRASE_1 }} \
+            --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
+            --decrypt database/database.sqlite.gpg
 
       - run: php artisan struct:sensor
 
-      - run: gpg --batch \
+      - run: |
+          gpg --batch \
           --output database/database.sqlite.gpg \
           --passphrase ${{ secrets.GPG_PASSPHRASE_1 }} \
           --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
