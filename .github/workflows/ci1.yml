@@ -1,11 +1,7 @@
-name: exec
+name: ci1
 
 on:
   push:
-
-  # schedule:
-  #   - cron: "*/5 * * * *"
-
   workflow_dispatch:
 
 jobs:
@@ -15,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     concurrency:
-      group: exec
+      group: ci1
       cancel-in-progress: true
 
     # timeout-minutes: 120
@@ -26,8 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: perf
           fetch-depth: 0
+
+      - run: git status
 
       - run: git pull
 
@@ -57,3 +54,7 @@ jobs:
           --symmetric database/database.sqlite
 
       - run: git status
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "git auto commit"
