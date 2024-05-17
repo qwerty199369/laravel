@@ -1,0 +1,36 @@
+name: exec
+
+on:
+  push:
+
+  # schedule:
+  #   - cron: "*/5 * * * *"
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "PHP 8.2 on ubuntu-latest"
+
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: exec
+      cancel-in-progress: true
+
+    # timeout-minutes: 120
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf
+          fetch-depth: 0
+
+      - run: git pull
+
+      - run: gpg --batch --output database/database.sqlite --passphrase ${{ secrets.GPG_PASSPHRASE_1 }} --decrypt database/database.sqlite.gpg
+
+      - run: git status
