@@ -44,3 +44,4 @@ class StructSensor extends Command
         }
     }
 }
+
