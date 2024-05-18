@@ -6,10 +6,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-zlib": "*",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "symfony/css-selector": "^7.0",
-        "symfony/dom-crawler": "^7.0"
+        "symfony/dom-crawler": "^7.0",
+        "symfony/filesystem": "^7.0",
+        "symfony/finder": "^7.0",
+        "symfony/http-client": "^7.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
