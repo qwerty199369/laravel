@@ -57,7 +57,6 @@ jobs:
 
       - run: |
           rm ../lfsrepo/database.sqlite.7z.gpg
-
           gpg --batch \
           --output ../lfsrepo/database.sqlite.7z.gpg \
           --passphrase ${{ secrets.GPG_PASSPHRASE_1 }} \
