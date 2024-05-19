@@ -48,8 +48,6 @@ abstract class BaseBot extends Command
         callable $respMiddleware = null
     ): string|null
     {
-        DB::select("PRAGMA synchronous = OFF");
-
         $this->is_read_from_db = false;
         if ($forceHttp === null || $forceHttp() !== true) {
             $vv = DB::table($table)->where($this->fi2wheres($findOrInsert))->value('vv');
@@ -62,6 +60,8 @@ abstract class BaseBot extends Command
 
             $this->warn("can not find vv from db");
         }
+
+        DB::select("PRAGMA synchronous = OFF");
 
         $resp = $this->getURL(
             $url,
