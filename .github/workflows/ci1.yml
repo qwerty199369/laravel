@@ -29,7 +29,7 @@ jobs:
       - run: git pull
 
       # from LFS
-      - run: git clone https://${{ secrets.LFS_REPO_USER }}:${{ secrets.LFS_REPO_PASS }}@${{ secrets.LFS_REPO_HOST }}/${{ secrets.LFS_REPO_NAME }}.git ../lfsrepo
+      - run: GIT_CLONE_PROTECTION_ACTIVE=false git clone https://${{ secrets.LFS_REPO_USER }}:${{ secrets.LFS_REPO_PASS }}@${{ secrets.LFS_REPO_HOST }}/${{ secrets.LFS_REPO_NAME }}.git ../lfsrepo
       - run: mv ../lfsrepo/database.sqlite.gpg ./database
 
       - uses: shivammathur/setup-php@v2
