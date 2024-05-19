@@ -58,14 +58,15 @@ class StructSensor extends BaseBot
             true
         )['data']['list'];
 
-        foreach ($list as $item) {
-            if (time() - $this->ts > 3000) {
+        $_total = count($list);
+        foreach ($list as $idx => $item) {
+            if (time() - $this->ts > 60) {
                 break;
             }
 
             $loc = "https://www.{$this->option('domain')}/brand/{$item['u']}.html";
 
-            $this->line("[{$item['u']}]");
+            $this->line("[" . (number_format($idx / $_total * 100, 2)) . "%][{$item['u']}]");
 
             $html = $this->getURLWithDB(
                 "$loc#{$item['u']}",
