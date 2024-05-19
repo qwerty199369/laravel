@@ -57,12 +57,14 @@ jobs:
           --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
           --symmetric database/database.sqlite
 
-      # to LFS
-      - run: mv database/database.sqlite.gpg ../lfsrepo
-      - run: git -C "../lfsrepo" add database.sqlite.gpg
-      - run: git -C "../lfsrepo" commit -m "to LFS"
-      - run: git -C "../lfsrepo" push
-
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "git auto commit"
+
+      # to LFS
+      - run: mv database/database.sqlite.gpg ../lfsrepo
+      - run: git -C "../lfsrepo" config user.name "${{ secrets.LFS_REPO_USER }}"
+      - run: git -C "../lfsrepo" config user.email "${{ secrets.LFS_REPO_USER }}@${{ secrets.LFS_REPO_USER }}.com"
+      - run: git -C "../lfsrepo" add database.sqlite.gpg
+      - run: git -C "../lfsrepo" commit -m "to LFS"
+      - run: git -C "../lfsrepo" push
