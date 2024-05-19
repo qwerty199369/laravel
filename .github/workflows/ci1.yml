@@ -46,7 +46,7 @@ jobs:
             --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
             --decrypt database/database.sqlite.gpg
 
-      - run: php artisan struct:sensor --domain=${{ secrets.DOMAIN_20240519_1235 }}
+      - run: php artisan struct:sensor --domain=${{ secrets.DOMAIN_20240519_1235 }} --sleep=7
 
       - run: rm database/database.sqlite.gpg
 
