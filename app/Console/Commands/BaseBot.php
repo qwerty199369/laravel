@@ -117,7 +117,11 @@ abstract class BaseBot extends Command
             $sleep = 6.1;
         }
 
-        usleep((int)($sleep * 100000));
+        $ts1 = time();
+        usleep((int)($sleep * 1000000));
+        $ts2 = time();
+
+        $this->line('ts2 - ts1: ' . ($ts2 - $ts1));
 
         $sfh = HttpClient::create();
 

@@ -2,9 +2,9 @@ name: ci1
 
 on:
   push:
-  workflow_dispatch:
-  schedule:
-    - cron: "*/15 * * * *"
+    branches:
+      - "main"
+      - "perf"
 
 jobs:
   build:
@@ -15,8 +15,6 @@ jobs:
     concurrency:
       group: ci1
       cancel-in-progress: true
-
-    # timeout-minutes: 120
 
     permissions:
       contents: write
