@@ -89,6 +89,12 @@ class StructSensor extends BaseBot
             // $crawler = new Crawler($html);
 
             preg_match('#company_id=(\d+)#', $html, $matches);
+
+            if (!isset($matches[1])) {
+                $this->warn('no match');
+                continue;
+            }
+
             $company_id = $matches[1];
 
             $productJson = $this->getURLWithDB(
