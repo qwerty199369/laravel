@@ -26,4 +26,4 @@ jobs:
 
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh run rerun --job 25149504021
+        run: gh run rerun 9148542044 --failed
