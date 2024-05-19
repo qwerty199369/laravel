@@ -50,7 +50,6 @@ jobs:
         env:
           MINI_APPID_1: ${{ secrets.MINI_APPID_1 }}
 
-      - run: exit 1;
       - run: rm database/database.sqlite.gpg
 
       - run: |
