@@ -60,7 +60,7 @@ class StructSensor extends BaseBot
 
         $_total = count($list);
         foreach ($list as $idx => $item) {
-            if (time() - $this->ts > 60) {
+            if (time() - $this->ts > 3000) {
                 break;
             }
 
