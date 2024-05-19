@@ -53,7 +53,7 @@ jobs:
 
       - run: |
           rm   ../lfsrepo/database.sqlite.7z
-          7z a ../lfsrepo/database.sqlite.7z ./database/database.sqlite
+          7z a -mx7 ../lfsrepo/database.sqlite.7z ./database/database.sqlite
 
       - run: |
           rm ../lfsrepo/database.sqlite.7z.gpg
