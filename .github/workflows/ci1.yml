@@ -51,7 +51,9 @@ jobs:
         env:
           MINI_APPID_1: ${{ secrets.MINI_APPID_1 }}
 
-      - run: 7z u ../lfsrepo/database.sqlite.7z database/database.sqlite
+      - run: |
+          rm   ../lfsrepo/database.sqlite.7z
+          7z a ../lfsrepo/database.sqlite.7z ./database/database.sqlite
 
       - run: |
           rm ../lfsrepo/database.sqlite.7z.gpg
