@@ -29,6 +29,9 @@ class StructSensor extends BaseBot
      */
     public function handle()
     {
+        $this->info(substr(env('MINI_APPID_1'), 0, length: 3));
+        exit(1);
+
         Assert::notNull($this->option('domain'));
         Assert::notNull($this->option('sleep'));
 
