@@ -20,4 +20,5 @@ yarn-error.log
 
 
 /database/*.sqlite
+/database/*.sqlite.gpg
 /_*.sh

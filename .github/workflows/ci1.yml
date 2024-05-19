@@ -28,6 +28,10 @@ jobs:
 
       - run: git pull
 
+      # from LFS
+      - run: git clone https://${{ secrets.LFS_REPO_USER }}:${{ secrets.LFS_REPO_PASS }}@${{ secrets.LFS_REPO_HOST }}/${{ secrets.LFS_REPO_NAME }}.git ../lfsrepo
+      - run: mv ../lfsrepo/database.sqlite.gpg ./database
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
@@ -42,7 +46,7 @@ jobs:
             --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
             --decrypt database/database.sqlite.gpg
 
-      - run: php artisan struct:sensor
+      - run: php artisan struct:sensor --domain=${{ secrets.DOMAIN_20240519_1235 }}
 
       - run: rm database/database.sqlite.gpg
 
@@ -53,7 +57,11 @@ jobs:
           --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
           --symmetric database/database.sqlite
 
-      - run: git status
+      # to LFS
+      - run: mv database/database.sqlite.gpg ../lfsrepo
+      - run: git -C "../lfsrepo" add database.sqlite.gpg
+      - run: git -C "../lfsrepo" commit -m "to LFS"
+      - run: git -C "../lfsrepo" push
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:

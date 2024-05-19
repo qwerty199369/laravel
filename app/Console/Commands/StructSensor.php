@@ -6,6 +6,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\DomCrawler\Crawler;
+use Webmozart\Assert\Assert;
 
 class StructSensor extends BaseBot
 {
@@ -14,7 +15,7 @@ class StructSensor extends BaseBot
      *
      * @var string
      */
-    protected $signature = 'struct:sensor {--host=} {--sleep=}';
+    protected $signature = 'struct:sensor {--domain=} {--sleep=}';
 
     /**
      * The console command description.
@@ -28,6 +29,9 @@ class StructSensor extends BaseBot
      */
     public function handle()
     {
+        Assert::notNull($this->option('domain'));
+        Assert::notNull($this->option('sleep'));
+
         if (!Schema::hasTable('sensor')) {
             Schema::create('sensor', function (Blueprint $table) {
                 $table->string('kk')->unique()->primary();
@@ -54,16 +58,16 @@ class StructSensor extends BaseBot
         $i = 0;
 
         foreach ($list as $item) {
-            $loc = "https://{$this->option('host')}/brand/{$item['u']}.html";
+            $loc = "https://www.{$this->option('domain')}/brand/{$item['u']}.html";
 
-            $this->line("[$i]");
+            $this->line("[$i][{$item['u']}]");
 
             $html = $this->getURLWithDB(
                 "$loc#{$item['u']}",
                 [
                     'Accept' => '*/*',
                     'Accept-Encoding' => 'gzip, deflate',
-                    'Host' => $this->option('host'),
+                    'Host' => 'www.'.$this->option('domain'),
                     'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
                 ],
                 'sensor',
@@ -72,7 +76,7 @@ class StructSensor extends BaseBot
                 ]
             );
 
-            if ($this->is_read_from_db) {
+            if (!$this->is_read_from_db) {
                 $i++;
             }
 
@@ -84,7 +88,7 @@ class StructSensor extends BaseBot
                 continue;
             }
 
-            $crawler = new Crawler($html);
+            // $crawler = new Crawler($html);
         }
     }
 }
