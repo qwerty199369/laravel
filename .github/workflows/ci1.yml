@@ -73,3 +73,5 @@ jobs:
       - run: git -C "../lfsrepo" add database.sqlite.7z.gpg
       - run: git -C "../lfsrepo" commit -m "to LFS"
       - run: git -C "../lfsrepo" push
+
+      - run: exit 1
