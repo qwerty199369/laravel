@@ -16,14 +16,14 @@ abstract class BaseBot extends Command
 {
     protected bool $isWindows = PHP_OS_FAMILY === 'Windows';
 
-    protected function getURL(string $url, array $headers): ?string
+    protected function getURL(string $url, array $headers, callable $on_timeout = null, callable $on_404 = null): ?string
     {
-        return $this->reqURL('GET', $url, $headers);
+        return $this->reqURL('GET', $url, $headers, null, $on_timeout, $on_404);
     }
 
-    protected function postURL(string $url, string $body, array $headers): ?string
+    protected function postURL(string $url, string $body, array $headers, callable $on_timeout = null, callable $on_404 = null): ?string
     {
-        return $this->reqURL('POST', $url, $headers, $body);
+        return $this->reqURL('POST', $url, $headers, $body, $on_timeout, $on_404);
     }
 
     private function fi2wheres(array $fi): array
@@ -37,7 +37,7 @@ abstract class BaseBot extends Command
         return $wheres;
     }
 
-    protected function getURLWithDB (
+    protected function getURLWithDB(
         string $url,
         array $headers,
         string $table,
@@ -46,6 +46,8 @@ abstract class BaseBot extends Command
         callable $respMiddleware = null
     ): mixed
     {
+        DB::select("PRAGMA synchronous = OFF");
+
         if ($forceHttp === null || $forceHttp() !== true) {
             $vv = DB::table($table)->where($this->fi2wheres($findOrInsert))->value('vv');
 
@@ -57,7 +59,16 @@ abstract class BaseBot extends Command
             $this->warn("can not find vv from db");
         }
 
-        $resp = $this->getURL($url, $headers);
+        $resp = $this->getURL(
+            $url,
+            $headers,
+            on_timeout: fn() => DB::table($table)->insert(array_merge($findOrInsert, [
+                'vv' => '__timeout__',
+            ])),
+            on_404: fn() => DB::table($table)->insert(array_merge($findOrInsert, [
+                'vv' => '__404__',
+            ])),
+        );
 
         if ($respMiddleware !== null) {
             $resp = $respMiddleware($resp);
@@ -82,13 +93,27 @@ abstract class BaseBot extends Command
 
     public ResponseInterface|null $sf_response = null;
 
-    private function reqURL(string $method, string $url, array $headers, string|callable|iterable $body = null): ?string
+    private function reqURL(
+        string $method,
+        string $url,
+        array $headers,
+        string|callable|iterable $body = null,
+        callable $on_timeout = null,
+        callable $on_404 = null
+    ): ?string
     {
-        $this->comment("[$method]: [" . parse_url(rawurldecode($url), PHP_URL_FRAGMENT) . "]");
+        $fragment = parse_url(rawurldecode($url), PHP_URL_FRAGMENT);
+
+        $this->line("[$method]: [$fragment]");
 
         $this->sf_response = null;
 
-        usleep(6100000);
+        $sleep = $this->option('sleep');
+        if (!is_numeric($sleep)) {
+            $sleep = 6.1;
+        }
+
+        usleep((int)($sleep * 100000));
 
         $sfh = HttpClient::create();
 
@@ -106,6 +131,7 @@ abstract class BaseBot extends Command
         $is_tried = false;
 
         send_request:
+
         try {
             $resp = $sfh->request($method, $url, $options);
         } catch (TransportExceptionInterface $e) {
@@ -124,7 +150,7 @@ abstract class BaseBot extends Command
             $this->warn(__LINE__ . " TransportExceptionInterface " . $e->getMessage());
 
             if (str_contains($e->getMessage(), 'Idle timeout reached')) {
-                // TODO: mark timeout
+                $on_timeout && $on_timeout();
                 return null;
             }
 
@@ -140,7 +166,7 @@ abstract class BaseBot extends Command
             $this->warn(__LINE__ . " statusCode: $statusCode");
 
             if ($statusCode === 404) {
-                // TODO: mark 404
+                $on_404 && $on_404();
                 return null;
             }
 
