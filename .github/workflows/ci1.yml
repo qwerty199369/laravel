@@ -28,10 +28,6 @@ jobs:
 
       - run: git pull
 
-      # from LFS
-      - run: GIT_CLONE_PROTECTION_ACTIVE=false git clone https://${{ secrets.LFS_REPO_USER }}:${{ secrets.LFS_REPO_PASS }}@${{ secrets.LFS_REPO_HOST }}/${{ secrets.LFS_REPO_NAME }}.git ../lfsrepo
-      - run: mv ../lfsrepo/database.sqlite.gpg ./database
-
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
@@ -39,34 +35,40 @@ jobs:
 
       - run: composer install
 
+      # from LFS
+      - run: GIT_CLONE_PROTECTION_ACTIVE=false git clone https://${{ secrets.LFS_REPO_USER }}:${{ secrets.LFS_REPO_PASS }}@${{ secrets.LFS_REPO_HOST }}/${{ secrets.LFS_REPO_NAME }}.git ../lfsrepo
+
       - run: |
           gpg --batch \
-            --output database/database.sqlite \
+            --output ../lfsrepo/database.sqlite.7z \
             --passphrase ${{ secrets.GPG_PASSPHRASE_1 }} \
             --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
-            --decrypt database/database.sqlite.gpg
+            --decrypt ../lfsrepo/database.sqlite.7z.gpg
+
+      - run: 7z x ../lfsrepo/database.sqlite.7z -odatabase/
 
       - run: php artisan struct:sensor --domain=${{ secrets.DOMAIN_20240519_1235 }} --sleep=7
         env:
           MINI_APPID_1: ${{ secrets.MINI_APPID_1 }}
 
-      - run: rm database/database.sqlite.gpg
+      - run: 7z u ../lfsrepo/database.sqlite.7z database/database.sqlite
 
       - run: |
+          rm ../lfsrepo/database.sqlite.7z.gpg
+
           gpg --batch \
-          --output database/database.sqlite.gpg \
+          --output ../lfsrepo/database.sqlite.7z.gpg \
           --passphrase ${{ secrets.GPG_PASSPHRASE_1 }} \
           --cipher-algo ${{ secrets.GPG_CIPHER_ALGO_1 }} \
-          --symmetric database/database.sqlite
+          --symmetric ../lfsrepo/database.sqlite.7z
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "git auto commit"
 
       # to LFS
-      - run: mv database/database.sqlite.gpg ../lfsrepo
       - run: git -C "../lfsrepo" config user.name "${{ secrets.LFS_REPO_USER }}"
       - run: git -C "../lfsrepo" config user.email "${{ secrets.LFS_REPO_USER }}@${{ secrets.LFS_REPO_USER }}.com"
-      - run: git -C "../lfsrepo" add database.sqlite.gpg
+      - run: git -C "../lfsrepo" add database.sqlite.7z.gpg
       - run: git -C "../lfsrepo" commit -m "to LFS"
       - run: git -C "../lfsrepo" push
