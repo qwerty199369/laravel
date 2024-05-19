@@ -90,6 +90,8 @@ class StructSensor extends BaseBot
             preg_match('#company_id=(\d+)#', $html, $matches);
             $company_id = $matches[1];
 
+            sleep(7);
+
             $productJson = $this->getURLWithDB(
                 "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id&page=1&pageSize=20#$company_id",
                 [
