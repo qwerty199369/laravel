@@ -37,6 +37,8 @@ abstract class BaseBot extends Command
         return $wheres;
     }
 
+    protected bool $is_read_from_db;
+
     protected function getURLWithDB(
         string $url,
         array $headers,
@@ -44,15 +46,17 @@ abstract class BaseBot extends Command
         array $findOrInsert,
         callable $forceHttp = null,
         callable $respMiddleware = null
-    ): mixed
+    ): string|null
     {
         DB::select("PRAGMA synchronous = OFF");
 
+        $this->is_read_from_db = false;
         if ($forceHttp === null || $forceHttp() !== true) {
             $vv = DB::table($table)->where($this->fi2wheres($findOrInsert))->value('vv');
 
             if ($vv !== null && $vv !== "") {
                 $this->line("read vv from db");
+                $this->is_read_from_db = true;
                 return $vv;
             }
 
