@@ -87,7 +87,7 @@ abstract class BaseBot extends Command
         ]));
 
         if ($ok) {
-            $this->info("db insert successful");
+            $this->info("db insert successful, content length: " . mb_strlen($resp));
         } else {
             $this->warn("db insert failed");
         }
