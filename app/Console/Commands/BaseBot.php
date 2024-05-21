@@ -53,7 +53,7 @@ abstract class BaseBot extends Command
             $vv = DB::table($table)->where($this->fi2wheres($findOrInsert))->value('vv');
 
             if ($vv !== null && $vv !== "") {
-                $this->line("read vv from db");
+                // $this->line("read vv from db");
                 $this->is_read_from_db = true;
                 return $vv;
             }
