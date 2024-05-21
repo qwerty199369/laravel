@@ -111,6 +111,24 @@ class StructSensor extends BaseBot
                     'kk' => "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id.1",
                 ]
             );
+
+            if (json_validate($productJson)) {
+                foreach (json_decode($productJson, true)['data']['rows'] as $row) {
+                    $productHtml = $this->getURLWithDB(
+                        "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html#{$row['id']}",
+                        [
+                            'Accept' => '*/*',
+                            'Accept-Encoding' => 'gzip, deflate',
+                            'Host' => "www.{$this->option('domain')}",
+                            'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+                        ],
+                        'sensor',
+                        [
+                            'kk' => "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html",
+                        ]
+                    );
+                }
+            }
         }
     }
 }
