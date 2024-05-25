@@ -97,41 +97,49 @@ class StructSensor extends BaseBot
 
             $company_id = $matches[1];
 
-            $productJson = $this->getURLWithDB(
-                "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id&page=1&pageSize=20#$company_id",
-                [
-                    'Accept' => 'application/json',
-                    'Accept-Encoding' => 'gzip, deflate',
-                    'Host' => "cgs.{$this->option('domain')}",
-                    'Referer' => "https://servicewechat.com/" . env('MINI_APPID_1') . "/30/page-frame.html",
-                    'User-Agent' => "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E287 MicroMessenger/8.0.45(0x1801512d) NetType/WIFI Language/zh_CN",
-                ],
-                'sensor',
-                [
-                    'kk' => "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id.1",
-                ]
-            );
+            $page = 1;
+            $pageSize = 20;
+            do {
+                $productJson = $this->getURLWithDB(
+                    "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id&page=$page&pageSize=$pageSize#$company_id",
+                    [
+                        'Accept' => 'application/json',
+                        'Accept-Encoding' => 'gzip, deflate',
+                        'Host' => "cgs.{$this->option('domain')}",
+                        'Referer' => "https://servicewechat.com/" . env('MINI_APPID_1') . "/30/page-frame.html",
+                        'User-Agent' => "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E287 MicroMessenger/8.0.45(0x1801512d) NetType/WIFI Language/zh_CN",
+                    ],
+                    'sensor',
+                    [
+                        'kk' => "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id.$page",
+                    ]
+                );
 
-            if (json_validate($productJson)) {
-                $productJson = json_decode($productJson, true);
-                if (isset($productJson['data']['rows'])) {
-                    foreach ($productJson['data']['rows'] as $row) {
-                        $productHtml = $this->getURLWithDB(
-                            "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html#{$row['id']}",
-                            [
-                                'Accept' => '*/*',
-                                'Accept-Encoding' => 'gzip, deflate',
-                                'Host' => "www.{$this->option('domain')}",
-                                'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
-                            ],
-                            'sensor',
-                            [
-                                'kk' => "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html",
-                            ]
-                        );
-                    }
+                if (!json_validate($productJson)) {
+                    break;
                 }
-            }
+
+                $productJson = json_decode($productJson, true);
+                if (!isset($productJson['data']['rows'])) {
+                    break;
+                }
+
+                foreach ($productJson['data']['rows'] as $row) {
+                    $productHtml = $this->getURLWithDB(
+                        "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html#{$row['id']}",
+                        [
+                            'Accept' => '*/*',
+                            'Accept-Encoding' => 'gzip, deflate',
+                            'Host' => "www.{$this->option('domain')}",
+                            'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+                        ],
+                        'sensor',
+                        [
+                            'kk' => "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html",
+                        ]
+                    );
+                }
+            } while (count($productJson['data']['rows']) < $pageSize);
         }
     }
 }
