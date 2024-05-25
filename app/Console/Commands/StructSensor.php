@@ -97,9 +97,11 @@ class StructSensor extends BaseBot
 
             $company_id = $matches[1];
 
-            $page = 1;
+            $page = 0;
             $pageSize = 20;
             do {
+                $page++;
+
                 $productJson = $this->getURLWithDB(
                     "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id&page=$page&pageSize=$pageSize#$company_id",
                     [
