@@ -139,7 +139,7 @@ class StructSensor extends BaseBot
                         ]
                     );
                 }
-            } while (count($productJson['data']['rows']) < $pageSize);
+            } while (count($productJson['data']['rows']) >= $pageSize);
         }
     }
 }
