@@ -102,6 +102,10 @@ class StructSensor extends BaseBot
             do {
                 $page++;
 
+                if (time() - $this->ts > 3000) {
+                    break;
+                }
+
                 $productJson = $this->getURLWithDB(
                     "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id&page=$page&pageSize=$pageSize#$company_id",
                     [
