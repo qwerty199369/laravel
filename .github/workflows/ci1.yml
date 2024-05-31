@@ -47,9 +47,11 @@ jobs:
 
       - run: 7z x ../lfsrepo/database.sqlite.7z -odatabase/
 
-      - run: php artisan struct:sensor --domain=${{ secrets.DOMAIN_20240519_1235 }} --sleep=7
-        env:
-          MINI_APPID_1: ${{ secrets.MINI_APPID_1 }}
+#      - run: php artisan struct:sensor --domain=${{ secrets.DOMAIN_20240519_1235 }} --sleep=7
+#        env:
+#          MINI_APPID_1: ${{ secrets.MINI_APPID_1 }}
+
+      - run: php artisan struct:coding-school --domain=${{ secrets.DOMAIN_20240601_0056 }} --sleep=9
 
       - run: |
           rm   ../lfsrepo/database.sqlite.7z
