@@ -34,8 +34,8 @@ class StructCodingSchool extends BaseBot
 
         Assert::notNull($this->option('domain'));
 
-        if (!Schema::hasTable('sensor')) {
-            Schema::create('sensor', function (Blueprint $table) {
+        if (!Schema::hasTable('coding_school')) {
+            Schema::create('coding_school', function (Blueprint $table) {
                 $table->string('kk')->unique()->primary();
                 $table->text('vv');
                 $table->dateTime('created_at')->nullable()->useCurrent();
@@ -43,15 +43,15 @@ class StructCodingSchool extends BaseBot
             });
         }
 
-        if (DB::table('sensor')->where('kk', 'v2.brand.list.json')->doesntExist()) {
-            DB::table('sensor')->insert([
+        if (DB::table('coding_school')->where('kk', 'v2.brand.list.json')->doesntExist()) {
+            DB::table('coding_school')->insert([
                 'kk' => 'v2.brand.list.json',
                 'vv' => file_get_contents("F:/sf/v2.brand.list.json"),
             ]);
         }
 
         $list = json_decode(
-            DB::table('sensor')
+            DB::table('coding_school')
                 ->where('kk', 'v2.brand.list.json')
                 ->value('vv'),
             true
@@ -75,7 +75,7 @@ class StructCodingSchool extends BaseBot
                     'Host' => "www.{$this->option('domain')}",
                     'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
                 ],
-                'sensor',
+                'coding_school',
                 [
                     'kk' => $loc,
                 ]
@@ -114,7 +114,7 @@ class StructCodingSchool extends BaseBot
                         'Referer' => "https://servicewechat.com/" . env('MINI_APPID_1') . "/30/page-frame.html",
                         'User-Agent' => "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E287 MicroMessenger/8.0.45(0x1801512d) NetType/WIFI Language/zh_CN",
                     ],
-                    'sensor',
+                    'coding_school',
                     [
                         'kk' => "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id.$page",
                     ]
@@ -138,7 +138,7 @@ class StructCodingSchool extends BaseBot
                             'Host' => "www.{$this->option('domain')}",
                             'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
                         ],
-                        'sensor',
+                        'coding_school',
                         [
                             'kk' => "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html",
                         ]
