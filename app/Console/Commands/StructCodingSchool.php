@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\DomCrawler\Crawler;
 use Webmozart\Assert\Assert;
 
 class StructCodingSchool extends BaseBot
@@ -43,32 +44,27 @@ class StructCodingSchool extends BaseBot
             });
         }
 
-        if (DB::table('coding_school')->where('kk', 'v2.brand.list.json')->doesntExist()) {
-            DB::table('coding_school')->insert([
-                'kk' => 'v2.brand.list.json',
-                'vv' => file_get_contents("F:/sf/v2.brand.list.json"),
-            ]);
-        }
-
-        $list = json_decode(
-            DB::table('coding_school')
-                ->where('kk', 'v2.brand.list.json')
-                ->value('vv'),
-            true
-        )['data']['list'];
-
-        $_total = count($list);
-        foreach ($list as $idx => $item) {
+        $pls = [
+            'html',
+            'css',
+            'js',
+            'php',
+            'sql',
+            'python',
+            'java',
+            'c',
+            'cpp',
+            'cs',
+        ];
+        foreach ($pls as $pl) {
             if (time() - $this->ts > 3000) {
                 break;
             }
 
-            $loc = "https://www.{$this->option('domain')}/brand/{$item['u']}.html";
-
-            $this->line("[" . (number_format($idx / $_total * 100, 2)) . "%][{$item['u']}]");
+            $loc = "https://www.{$this->option('domain')}/$pl/";
 
             $html = $this->getURLWithDB(
-                "$loc#{$item['u']}",
+                "$loc#$pl",
                 [
                     'Accept' => '*/*',
                     'Accept-Encoding' => 'gzip, deflate',
@@ -85,66 +81,39 @@ class StructCodingSchool extends BaseBot
                 continue;
             }
 
-            // $crawler = new Crawler($html);
+            $crawler = new Crawler($html);
 
-            preg_match('#company_id=(\d+)#', $html, $matches);
-
-            if (!isset($matches[1])) {
-                $this->warn('no match');
-                continue;
-            }
-
-            $company_id = $matches[1];
-
-            $page = 0;
-            $pageSize = 20;
-            do {
-                $page++;
-
-                if (time() - $this->ts > 3000) {
-                    break;
+            $tree = [];
+            $current_h2 = null;
+            $current_a = null;
+            $crawler->filter('#leftmenuinnerinner')->children()->each(function (Crawler $tag) use (&$tree, &$current_h2, &$current_a) {
+                if ($tag->nodeName() === 'h2') {
+                    $current_h2 = $tag->text();
+                    $tree[$current_h2] = [];
+                } elseif ($tag->nodeName() === 'a') {
+                    $current_a = $tag->text();
+                    $tree[$current_h2][$current_a] = null;
+                } elseif ($tag->nodeName() === 'div') {
+                    if ($tag->attr('class') === 'ref_overview' || $tag->attr('class') === 'tut_overview') {
+                        $tree[$current_h2][$current_a] = [];
+                        $tag->children()->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_a) {
+                            if ($a->nodeName() !== 'a') {
+                                dd($a->nodeName());
+                            }
+                            $tree[$current_h2][$current_a][] = $a->text();
+                        });
+                    } else {
+                        dd($tag->attr('class'));
+                    }
+                } elseif ($tag->nodeName() === 'br') {
+                    return;
+                } elseif ($tag->nodeName() === 'br') {
+                    dd($tag->nodeName());
                 }
+            });
 
-                $productJson = $this->getURLWithDB(
-                    "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id&page=$page&pageSize=$pageSize#$company_id",
-                    [
-                        'Accept' => 'application/json',
-                        'Accept-Encoding' => 'gzip, deflate',
-                        'Host' => "cgs.{$this->option('domain')}",
-                        'Referer' => "https://servicewechat.com/" . env('MINI_APPID_1') . "/30/page-frame.html",
-                        'User-Agent' => "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E287 MicroMessenger/8.0.45(0x1801512d) NetType/WIFI Language/zh_CN",
-                    ],
-                    'coding_school',
-                    [
-                        'kk' => "https://cgs.{$this->option('domain')}/v1/company/search-product?company_id=$company_id.$page",
-                    ]
-                );
-
-                if (!json_validate($productJson)) {
-                    break;
-                }
-
-                $productJson = json_decode($productJson, true);
-                if (!isset($productJson['data']['rows'])) {
-                    break;
-                }
-
-                foreach ($productJson['data']['rows'] as $row) {
-                    $productHtml = $this->getURLWithDB(
-                        "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html#{$row['id']}",
-                        [
-                            'Accept' => '*/*',
-                            'Accept-Encoding' => 'gzip, deflate',
-                            'Host' => "www.{$this->option('domain')}",
-                            'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
-                        ],
-                        'coding_school',
-                        [
-                            'kk' => "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html",
-                        ]
-                    );
-                }
-            } while (count($productJson['data']['rows']) >= $pageSize);
+            dd($tree);
+            break;
         }
     }
 }
