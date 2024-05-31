@@ -57,14 +57,14 @@ class StructCodingSchool extends BaseBot
             'cs',
         ];
         foreach ($pls as $pl) {
-            if (time() - $this->ts > 3000) {
+            if (time() - $this->ts > 1500) {
                 break;
             }
 
-            $loc = "https://www.{$this->option('domain')}/$pl/";
+            $cat_url = "https://www.{$this->option('domain')}/$pl/";
 
             $html = $this->getURLWithDB(
-                "$loc#$pl",
+                "$cat_url#$pl",
                 [
                     'Accept' => '*/*',
                     'Accept-Encoding' => 'gzip, deflate',
@@ -73,7 +73,7 @@ class StructCodingSchool extends BaseBot
                 ],
                 'coding_school',
                 [
-                    'kk' => $loc,
+                    'kk' => $cat_url,
                 ]
             );
 
@@ -86,17 +86,37 @@ class StructCodingSchool extends BaseBot
             $tree = [];
             $current_h2 = null;
             $current_a = null;
-            $crawler->filter('#leftmenuinnerinner')->children()->each(function (Crawler $tag) use (&$tree, &$current_h2, &$current_a) {
+            $crawler->filter('#leftmenuinnerinner')->children()->each(function (Crawler $tag) use (&$tree, &$current_h2, &$current_a, $cat_url) {
                 if ($tag->nodeName() === 'h2') {
                     $current_h2 = $tag->text();
                     $tree[$current_h2] = [];
                 } elseif ($tag->nodeName() === 'a') {
                     $current_a = $tag->text();
                     $tree[$current_h2][$current_a] = null;
+
+                    // $href
+                    $href = $tag->attr('href');
+                    if (str_starts_with($href, '/') || str_starts_with($href, 'https://')) {
+                        $this->warn(__LINE__ . $href);
+                        return;
+                    }
+                    $this->getURLWithDB(
+                        "$cat_url$href#$href",
+                        [
+                            'Accept' => '*/*',
+                            'Accept-Encoding' => 'gzip, deflate',
+                            'Host' => "www.{$this->option('domain')}",
+                            'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+                        ],
+                        'coding_school',
+                        [
+                            'kk' => "$cat_url$href",
+                        ]
+                    );
                 } elseif ($tag->nodeName() === 'div') {
                     if ($tag->attr('class') === 'ref_overview' || $tag->attr('class') === 'tut_overview') {
                         $tree[$current_h2][$current_a] = [];
-                        $tag->children()->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_a) {
+                        $tag->children()->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_a, $cat_url) {
                             if ($a->nodeName() === 'br') {
                                 return;
                             }
@@ -108,6 +128,25 @@ class StructCodingSchool extends BaseBot
                                 dd($current_h2, $current_a, $a->nodeName());
                             }
                             $tree[$current_h2][$current_a][] = $a->text();
+
+                            $href = $a->attr('href');
+                            if (str_starts_with($href, '/') || str_starts_with($href, 'https://')) {
+                                $this->warn(__LINE__ . $href);
+                                return;
+                            }
+                            $this->getURLWithDB(
+                                "$cat_url$href#$href",
+                                [
+                                    'Accept' => '*/*',
+                                    'Accept-Encoding' => 'gzip, deflate',
+                                    'Host' => "www.{$this->option('domain')}",
+                                    'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+                                ],
+                                'coding_school',
+                                [
+                                    'kk' => "$cat_url$href",
+                                ]
+                            );
                         });
                     } else {
                         dd($tag->attr('class'));
