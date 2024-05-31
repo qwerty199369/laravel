@@ -97,8 +97,15 @@ class StructCodingSchool extends BaseBot
                     if ($tag->attr('class') === 'ref_overview' || $tag->attr('class') === 'tut_overview') {
                         $tree[$current_h2][$current_a] = [];
                         $tag->children()->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_a) {
+                            if ($a->nodeName() === 'br') {
+                                return;
+                            }
+                            if ($a->nodeName() === 'span') {
+                                $this->warn("$current_h2, $current_a, {$a->text()}");
+                                return;
+                            }
                             if ($a->nodeName() !== 'a') {
-                                dd($a->nodeName());
+                                dd($current_h2, $current_a, $a->nodeName());
                             }
                             $tree[$current_h2][$current_a][] = $a->text();
                         });
@@ -112,8 +119,7 @@ class StructCodingSchool extends BaseBot
                 }
             });
 
-            dd($tree);
-            break;
+            // dump($tree);
         }
     }
 }
