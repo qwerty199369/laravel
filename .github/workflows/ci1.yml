@@ -24,8 +24,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: git status
+      - run: df -h
 
+      - run: git status
       - run: git pull
 
       - uses: shivammathur/setup-php@v2
