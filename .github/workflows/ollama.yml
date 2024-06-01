@@ -36,8 +36,8 @@ jobs:
           chmod +x /usr/bin/ollama
           /usr/bin/ollama serve &
           sleep 9
-#          /usr/bin/ollama pull codestral:22b
           /usr/bin/ollama pull starcoder2:15b
+#          /usr/bin/ollama pull codestral:22b
 #          /usr/bin/ollama pull deepseek-v2:16b
 
       - run: |
