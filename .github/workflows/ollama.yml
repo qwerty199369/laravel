@@ -35,7 +35,7 @@ jobs:
       - run: |
           sudo curl -L https://ollama.com/download/ollama-linux-amd64 -o /usr/bin/ollama
           sudo chmod +x /usr/bin/ollama
-          sudo /usr/bin/ollama serve &
+          sudo nohup /usr/bin/ollama serve &
           sudo /usr/bin/ollama pull codestral:22b
 #          /usr/bin/ollama pull starcoder2:15b
 #          /usr/bin/ollama pull starcoder2:15b
