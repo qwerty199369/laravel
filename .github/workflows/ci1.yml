@@ -24,6 +24,8 @@ jobs:
         with:
           fetch-depth: 0
 
+      - run: exit 1
+
       - run: df -h
 
       - run: git status
