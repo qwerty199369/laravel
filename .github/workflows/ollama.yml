@@ -41,12 +41,14 @@ jobs:
 #          /usr/bin/ollama pull deepseek-v2:16b
 
       - run: |
-          7z a ../lfsrepo/ollama.7z ~/.ollama/*
+          mkdir -p ../lfsrepo/ollama
+          mv ~/.ollama/* ../lfsrepo/ollama/
+#          7z a ../lfsrepo/ollama.7z ~/.ollama/*
 
       # to LFS
       - run: git -C "../lfsrepo" config user.name "${{ secrets.LFS_REPO_USER }}"
       - run: git -C "../lfsrepo" config user.email "${{ secrets.LFS_REPO_USER }}@${{ secrets.LFS_REPO_USER }}.com"
-      - run: git -C "../lfsrepo" add ollama.7z
+      - run: git -C "../lfsrepo" add ollama/*
       - run: git -C "../lfsrepo" commit -m "to LFS"
       - run: git -C "../lfsrepo" push
 
