@@ -16,7 +16,7 @@ jobs:
 
     concurrency:
       group: ollama
-      cancel-in-progress: true
+      cancel-in-progress: false
 
     permissions:
       contents: write
@@ -51,6 +51,6 @@ jobs:
       - run: git -C "../lfsrepo" config user.email "${{ secrets.LFS_REPO_USER }}@${{ secrets.LFS_REPO_USER }}.com"
       - run: git -C "../lfsrepo" add ollama/*
       - run: git -C "../lfsrepo" commit -m "to LFS"
-      - run: git -C "../lfsrepo" push
+      - run: git -C "../lfsrepo" push --verbose
 
       - run: exit 1
