@@ -42,6 +42,7 @@ jobs:
 #          /usr/bin/ollama pull deepseek-v2:16b
 
       - run: |
+          rm -rf ../lfsrepo/ollama
           mkdir -p ../lfsrepo/ollama
           du -h -a ~/.ollama/* --max-depth=5
           mv ~/.ollama/* ../lfsrepo/ollama/
