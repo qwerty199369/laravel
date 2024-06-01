@@ -43,15 +43,19 @@ jobs:
 
       - run: |
           mkdir -p ../lfsrepo/ollama
-          du -h ~/.ollama/* --max-depth=5
+          du -h -a ~/.ollama/* --max-depth=5
           mv ~/.ollama/* ../lfsrepo/ollama/
+          curl -L https://ollama.com/download/ollama-linux-amd64 -o ../lfsrepo/ollama/ollama-linux-amd64
 #          7z a ../lfsrepo/ollama.7z ~/.ollama/*
 
       # to LFS
       - run: git -C "../lfsrepo" config user.name "${{ secrets.LFS_REPO_USER }}"
       - run: git -C "../lfsrepo" config user.email "${{ secrets.LFS_REPO_USER }}@${{ secrets.LFS_REPO_USER }}.com"
-      - run: git -C "../lfsrepo" add ollama/*
-      - run: git -C "../lfsrepo" commit -m "to LFS"
+
+      - run: git -C "../lfsrepo" add ollama/ollama-linux-amd64
+      - run: git -C "../lfsrepo" commit -m "to LFS 1"
       - run: git -C "../lfsrepo" push --verbose
 
-      - run: exit 1
+      - run: git -C "../lfsrepo" add ollama/*
+      - run: git -C "../lfsrepo" commit -m "to LFS 2"
+      - run: git -C "../lfsrepo" push --verbose
