@@ -28,9 +28,6 @@ jobs:
 
       - run: df -h
 
-      - run: git status
-      - run: git pull
-
       # from LFS
       - run: GIT_CLONE_PROTECTION_ACTIVE=false git clone https://${{ secrets.LFS_REPO_USER }}:${{ secrets.LFS_REPO_PASS }}@${{ secrets.LFS_REPO_HOST }}/${{ secrets.LFS_REPO_NAME }}.git ../lfsrepo
 
@@ -45,10 +42,6 @@ jobs:
 
       - run: |
           7z a ../lfsrepo/ollama.7z ~/.ollama/*
-
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "git auto commit"
 
       # to LFS
       - run: git -C "../lfsrepo" config user.name "${{ secrets.LFS_REPO_USER }}"
