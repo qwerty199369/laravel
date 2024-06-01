@@ -33,9 +33,8 @@ jobs:
       - run: GIT_CLONE_PROTECTION_ACTIVE=false git clone https://${{ secrets.LFS_REPO_USER }}:${{ secrets.LFS_REPO_PASS }}@${{ secrets.LFS_REPO_HOST }}/${{ secrets.LFS_REPO_NAME }}.git ../lfsrepo
 
       - run: |
-          sudo curl -L https://ollama.com/download/ollama-linux-amd64 -o /usr/bin/ollama
-          sudo chmod +x /usr/bin/ollama
-          sudo nohup /usr/bin/ollama serve &
+          curl -fsSL https://ollama.com/install.sh | sh
+          sudo /usr/bin/ollama serve &
           sudo /usr/bin/ollama pull codestral:22b
 #          /usr/bin/ollama pull starcoder2:15b
 #          /usr/bin/ollama pull starcoder2:15b
