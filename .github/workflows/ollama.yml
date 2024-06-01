@@ -60,3 +60,4 @@ jobs:
       - run: git -C "../lfsrepo" add ollama/*
       - run: git -C "../lfsrepo" commit -m "to LFS 2"
       - run: git -C "../lfsrepo" push --verbose
+
