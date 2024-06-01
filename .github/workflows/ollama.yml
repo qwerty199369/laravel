@@ -43,6 +43,7 @@ jobs:
 
       - run: |
           mkdir -p ../lfsrepo/ollama
+          du -h ~/.ollama/*
           mv ~/.ollama/* ../lfsrepo/ollama/
 #          7z a ../lfsrepo/ollama.7z ~/.ollama/*
 
