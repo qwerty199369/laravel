@@ -43,7 +43,7 @@ jobs:
 
       - run: |
           mkdir -p ../lfsrepo/ollama
-          du -h ~/.ollama/models/blobs/*
+          du -h ~/.ollama/* --max-depth=5
           mv ~/.ollama/* ../lfsrepo/ollama/
 #          7z a ../lfsrepo/ollama.7z ~/.ollama/*
 
