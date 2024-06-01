@@ -14,9 +14,9 @@ jobs:
 
     container: charescape/web:ubuntu22-php82-mysql80.rv5
 
-    concurrency:
-      group: ollama
-      cancel-in-progress: false
+#    concurrency:
+#      group: ollama
+#      cancel-in-progress: true
 
     permissions:
       contents: write
