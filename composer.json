@@ -13,7 +13,8 @@
         "symfony/dom-crawler": "^7.0",
         "symfony/filesystem": "^7.0",
         "symfony/finder": "^7.0",
-        "symfony/http-client": "^7.0"
+        "symfony/http-client": "^7.0",
+        "stichoza/google-translate-php": "dev-master"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
