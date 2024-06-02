@@ -230,7 +230,7 @@ abstract class BaseBot extends Command
         return $respContent;
     }
 
-    private function translate(string $word, string $from, string $to): string
+    protected function translate(string $word, string $from, string $to): string
     {
         if (PHP_OS_FAMILY === 'Windows') {
             return '';

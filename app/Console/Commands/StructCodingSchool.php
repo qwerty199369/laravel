@@ -6,6 +6,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\Assert\Assert;
 
@@ -16,7 +17,7 @@ class StructCodingSchool extends BaseBot
      *
      * @var string
      */
-    protected $signature = 'struct:coding-school {--domain=} {--sleep=} {--aigc}';
+    protected $signature = 'struct:coding-school {--domain=} {--sleep=} {--trans} {--aigc}';
 
     /**
      * The console command description.
@@ -134,18 +135,59 @@ class StructCodingSchool extends BaseBot
                 }
             });
 
+            $plfile = "$this->dir/$pl.yaml";
+
+            if ($this->option('trans')) {
+                $plkv = Yaml::parseFile($plfile);
+
+                foreach ($plkv as $kk => &$vv) {
+                    if ($vv === null || $vv === '') {
+                        $vv = (new AsciiSlugger())
+                            ->slug($this->translate($kk, 'zh-CN', 'en'))
+                            ->lower()
+                            ->toString();
+                    } elseif (is_array($vv)) {
+                        foreach ($vv as $kkk => &$vvv) {
+                            if ($vvv === null || $vvv === '') {
+                                $vvv = (new AsciiSlugger())
+                                    ->slug($this->translate($kkk, 'zh-CN', 'en'))
+                                    ->lower()
+                                    ->toString();
+                            } elseif (is_array($vvv)) {
+                                foreach ($vvv as $kkkk => &$vvvv) {
+                                    if ($vvvv === null || $vvvv === '') {
+                                        $vvvv = (new AsciiSlugger())
+                                            ->slug($this->translate($kkkk, 'zh-CN', 'en'))
+                                            ->lower()
+                                            ->toString();
+                                    }
+                                }
+                                unset($vvvv);
+                            }
+                        }
+                        unset($vvv);
+                    }
+                }
+                unset($vv);
+
+                file_put_contents(
+                    $plfile,
+                    Yaml::dump($plkv, 5),
+                    LOCK_EX
+                );
+            }
+
             if ($this->isWindows) {
-                $to_file = "$this->dir/$pl.yaml";
-                if (!file_exists($to_file)) {
+                if (!file_exists($plfile)) {
                     file_put_contents(
-                        $to_file,
+                        $plfile,
                         Yaml::dump($tree, 5),
                         LOCK_EX
                     );
                 }
 
                 if ($this->option('aigc')) {
-                    foreach (Yaml::parseFile($to_file) as $kk => $vv) {
+                    foreach (Yaml::parseFile($plfile) as $kk => $vv) {
                         $this->fs()->mkdir("$this->dir/$kk/");
                         foreach ($vv as $kkk => $vvv) {
                             Assert::true(
