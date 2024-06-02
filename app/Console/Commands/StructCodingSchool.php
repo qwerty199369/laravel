@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Yaml\Yaml;
 use Webmozart\Assert\Assert;
 
 class StructCodingSchool extends BaseBot
@@ -113,9 +114,11 @@ class StructCodingSchool extends BaseBot
                             if ($a->nodeName() !== 'a') {
                                 dd($current_h2, $current_a, $a->nodeName());
                             }
-                            $tree[$current_h2][$current_a][] = $a->text();
+                            $tree[$current_h2][$current_a][$a->text()] = null;
 
-                            $this->getHref($a, $cat_url);
+                            $crawler2 = new Crawler($this->getHref($a, $cat_url));
+                            $h1 = $crawler2->filter('h1')->text();
+                            $tree[$current_h2][$current_a][$a->text()] = $h1;
                         });
                     } else {
                         dd($tag->attr('class'));
@@ -127,7 +130,7 @@ class StructCodingSchool extends BaseBot
                 }
             });
 
-            // dump($tree);
+            file_put_contents(database_path("/$pl.yaml"), Yaml::dump($tree, 5), LOCK_EX);
         }
     }
 
