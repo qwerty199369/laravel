@@ -28,7 +28,9 @@ class StructCodingSchool extends BaseBot
 
     private int $ts;
 
-    private string $dir = 'D:/repos/lfsfiles_alpha/coding-school';
+    private string $dir = PHP_OS_FAMILY === 'Windows'
+        ? 'D:/repos/lfsfiles_alpha/coding-school'
+        : __DIR__ . '/../../../../lfsrepo/coding-school';
 
     /**
      * Execute the console command.
