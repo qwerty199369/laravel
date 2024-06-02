@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -15,6 +16,11 @@ use Throwable;
 abstract class BaseBot extends Command
 {
     protected bool $isWindows = PHP_OS_FAMILY === 'Windows';
+
+    protected function fs(): Filesystem
+    {
+        return new Filesystem();
+    }
 
     protected function getURL(string $url, array $headers, callable $on_timeout = null, callable $on_404 = null): ?string
     {
