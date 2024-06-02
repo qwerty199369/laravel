@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpClient\HttpClient;
@@ -49,6 +50,8 @@ class StructCodingSchool extends BaseBot
                 $table->dateTime('updated_at')->nullable()->useCurrentOnUpdate();
             });
         }
+
+        $this->warn(DB::table('coding_school')->where('vv', '__timeout__')->delete());
 
         $pls = [
             'html',
