@@ -222,7 +222,7 @@ TXT,
                     ],
                     [
                         'role' => 'user',
-                        'content' => "Please write a detailed tutorial with the title \"$title\". The tutorial should be in Chinese. The tutorial should be in Markdown format, with \"# $title\" as the first line of the Markdown.",
+                        'content' => "Please write a detailed tutorial titled \"$title\" that explains $title in depth. The tutorial should be in Chinese. The tutorial should be in Markdown format, with \"# $title\" as the first line of the Markdown.",
                     ],
                 ],
             ],
