@@ -53,7 +53,6 @@ jobs:
 #          MINI_APPID_1: ${{ secrets.MINI_APPID_1 }}
 
       - run: php artisan struct:coding-school --domain=${{ secrets.DOMAIN_20240601_0056 }} --sleep=9 --trans
-      - run: php artisan struct:coding-school --domain=${{ secrets.DOMAIN_20240601_0056 }} --sleep=9 --trans
 
       - run: |
           rm   ../lfsrepo/database.sqlite.7z
@@ -74,7 +73,7 @@ jobs:
       # to LFS
       - run: git -C "../lfsrepo" config user.name "${{ secrets.LFS_REPO_USER }}"
       - run: git -C "../lfsrepo" config user.email "${{ secrets.LFS_REPO_USER }}@${{ secrets.LFS_REPO_USER }}.com"
-      - run: git -C "../lfsrepo" add database.sqlite.7z.gpg
+      - run: git -C "../lfsrepo" add .
       - run: git -C "../lfsrepo" commit -m "to LFS"
       - run: git -C "../lfsrepo" push
 
