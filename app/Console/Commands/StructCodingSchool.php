@@ -101,7 +101,7 @@ class StructCodingSchool extends BaseBot
 
                     $x2crawler = new Crawler($this->getHref($tag, $cat_url));
                     $x2h1 = $x2crawler->filter('h1')->text();
-                    $tree[$current_h2][$current_a] = $x2h1;
+                    $tree[$current_h2][$x2h1] = null;
                 } elseif ($tag->nodeName() === 'div') {
                     if ($tag->attr('class') === 'ref_overview' || $tag->attr('class') === 'tut_overview') {
                         $tree[$current_h2][$current_a] = [];
@@ -119,11 +119,10 @@ class StructCodingSchool extends BaseBot
                             if ($a->nodeName() !== 'a') {
                                 dd($current_h2, $current_a, $a->nodeName());
                             }
-                            $tree[$current_h2][$current_a][$a->text()] = null;
 
                             $x3crawler = new Crawler($this->getHref($a, $cat_url));
                             $x3h1 = $x3crawler->filter('h1')->text();
-                            $tree[$current_h2][$current_a][$a->text()] = $x3h1;
+                            $tree[$current_h2][$current_a][$x3h1] = null;
                         });
                     } else {
                         dd($tag->attr('class'));
