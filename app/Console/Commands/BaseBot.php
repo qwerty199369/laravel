@@ -4,6 +4,10 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Stichoza\GoogleTranslate\Exceptions\LargeTextException;
+use Stichoza\GoogleTranslate\Exceptions\RateLimitException;
+use Stichoza\GoogleTranslate\Exceptions\TranslationRequestException;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -224,5 +228,35 @@ abstract class BaseBot extends Command
         }
 
         return $respContent;
+    }
+
+    private function translate(string $word, string $from, string $to): string
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            return '';
+        }
+
+        sleep(1);
+
+        $google = new GoogleTranslate();
+
+        $google->setSource($from);
+        $google->setTarget($to);
+
+        $result = null;
+
+        try {
+            $result = $google->preserveParameters('#\{([^}]+)}#')->translate($word);
+        } catch (LargeTextException $e) {
+            dd("LargeTextException on translating [$word] from [$from] to [$to]");
+        } catch (RateLimitException $e) {
+            dd("RateLimitException on translating [$word] from [$from] to [$to]");
+        } catch (TranslationRequestException $e) {
+            dd("TranslationRequestException on translating [$word] from [$from] to [$to]");
+        }
+
+        $this->info("[$from] => [$to] Successfully translated [$word] to [$result]");
+
+        return $result;
     }
 }
