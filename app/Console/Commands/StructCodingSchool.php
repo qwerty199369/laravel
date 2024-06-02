@@ -232,7 +232,7 @@ TXT,
 
         $this->line($sfh_arr['message']['content']);
 
-        Assert::integer(file_put_contents($tofile, $sfh_arr['message']['content'], LOCK_EX));
+        Assert::integer(file_put_contents($tofile, $sfh_arr['message']['content'] . "\n", LOCK_EX));
 
         return $sfh_arr;
     }
