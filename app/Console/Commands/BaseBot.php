@@ -48,6 +48,10 @@ abstract class BaseBot extends Command
         callable $respMiddleware = null
     ): string|null
     {
+        if ($this->isWindows) {
+            $this->line(rawurldecode($url));
+        }
+
         $this->is_read_from_db = false;
         if ($forceHttp === null || $forceHttp() !== true) {
             $vv = DB::table($table)->where($this->fi2wheres($findOrInsert))->value('vv');
