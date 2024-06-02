@@ -15,7 +15,7 @@ class StructCodingSchool extends BaseBot
      *
      * @var string
      */
-    protected $signature = 'struct:coding-school {--domain=} {--sleep=}';
+    protected $signature = 'struct:coding-school {--domain=} {--sleep=} {--aigc}';
 
     /**
      * The console command description.
@@ -133,11 +133,14 @@ class StructCodingSchool extends BaseBot
             });
 
             if ($this->isWindows) {
-                file_put_contents(
-                    "D:/repos/lfsfiles_alpha/coding-school/$pl.yaml",
-                    Yaml::dump($tree, 5),
-                    LOCK_EX
-                );
+                $to_file = "D:/repos/lfsfiles_alpha/coding-school/$pl.yaml";
+                if (!file_exists($to_file)) {
+                    file_put_contents(
+                        $to_file,
+                        Yaml::dump($tree, 5),
+                        LOCK_EX
+                    );
+                }
             }
         }
     }
