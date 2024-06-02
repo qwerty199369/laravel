@@ -132,7 +132,13 @@ class StructCodingSchool extends BaseBot
                 }
             });
 
-            file_put_contents(database_path("/$pl.yaml"), Yaml::dump($tree, 5), LOCK_EX);
+            if ($this->isWindows) {
+                file_put_contents(
+                    "D:/repos/lfsfiles_alpha/coding-school/$pl.yaml",
+                    Yaml::dump($tree, 5),
+                    LOCK_EX
+                );
+            }
         }
     }
 
