@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\DomCrawler\Crawler;
 use Webmozart\Assert\Assert;
@@ -57,7 +56,7 @@ class StructCodingSchool extends BaseBot
             'cs',
         ];
         foreach ($pls as $pl) {
-            if (time() - $this->ts > 1500) {
+            if (!$this->isWindows && (time() - $this->ts > 1500)) {
                 break;
             }
 
@@ -87,7 +86,7 @@ class StructCodingSchool extends BaseBot
             $current_h2 = null;
             $current_a = null;
             $crawler->filter('#leftmenuinnerinner')->children()->each(function (Crawler $tag) use (&$tree, &$current_h2, &$current_a, $cat_url) {
-                if (time() - $this->ts > 1500) {
+                if (!$this->isWindows && (time() - $this->ts > 1500)) {
                     return;
                 }
                 if ($tag->nodeName() === 'h2') {
@@ -101,7 +100,7 @@ class StructCodingSchool extends BaseBot
                     if ($tag->attr('class') === 'ref_overview' || $tag->attr('class') === 'tut_overview') {
                         $tree[$current_h2][$current_a] = [];
                         $tag->children()->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_a, $cat_url) {
-                            if (time() - $this->ts > 1500) {
+                            if (!$this->isWindows && (time() - $this->ts > 1500)) {
                                 return;
                             }
                             if ($a->nodeName() === 'br') {
