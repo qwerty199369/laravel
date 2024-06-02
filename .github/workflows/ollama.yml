@@ -28,6 +28,8 @@ jobs:
 
       - run: df -h
 
+      - run: exit 1
+
       # from LFS
       - run: GIT_CLONE_PROTECTION_ACTIVE=false git clone https://${{ secrets.LFS_REPO_USER }}:${{ secrets.LFS_REPO_PASS }}@${{ secrets.LFS_REPO_HOST }}/${{ secrets.LFS_REPO_NAME }}.git ../lfsrepo
 
