@@ -38,6 +38,24 @@ class StructCodingSchool extends BaseBot
      */
     public function handle()
     {
+//        $crawler = new Crawler(file_get_contents(__DIR__ . '/../../../_php_wikis.html'));
+//
+//        $tree = [];
+//        $crawler->filter('div.mb-4.ml-2')->each(function (Crawler $block) use (&$tree, &$current_h2, &$current_h3) {
+//            $tree[$block->filter('h3.wiki-category-name')->text()] = [];
+//            $block->filter('div.ui.item.lh-3')->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_h3, $block) {
+//                $tree[$block->filter('h3.wiki-category-name')->text()][$a->text()] = null;
+//            });
+//        });
+//
+//        file_put_contents(
+//            "$this->dir/php2.yaml",
+//            Yaml::dump($tree, 5),
+//            LOCK_EX
+//        );
+//
+//        dd($tree);
+
         $this->ts = time();
 
         Assert::notNull($this->option('domain'));
