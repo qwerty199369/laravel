@@ -190,7 +190,7 @@ class StructCodingSchool extends BaseBot
                 );
             }
 
-            if ($this->option('aigc')) {
+            if ($this->hasOption('aigc')) {
                 foreach (Yaml::parseFile($plfile) as $kk => $vv) {
                     $this->fs()->mkdir("$this->dir/$kk/");
                     foreach ($vv as $kkk => $vvv) {
