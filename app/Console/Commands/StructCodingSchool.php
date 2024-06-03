@@ -183,11 +183,7 @@ class StructCodingSchool extends BaseBot
                 }
                 unset($vv);
 
-                file_put_contents(
-                    $plfile,
-                    Yaml::dump($plkv, 5),
-                    LOCK_EX
-                );
+                file_put_contents($plfile, Yaml::dump($plkv, 5), LOCK_EX);
             }
 
             if ($this->option('aigc')) {
