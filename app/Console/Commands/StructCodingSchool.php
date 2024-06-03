@@ -150,25 +150,25 @@ class StructCodingSchool extends BaseBot
 
             trans:
 
-            if ($this->option('trans')) {
+            if (pf_is_string_filled($this->option('trans'))) {
                 $plkv = Yaml::parseFile($plfile);
 
                 foreach ($plkv as $kk => &$vv) {
-                    if ($vv === null || $vv === '' || $this->option('trans') === 'force') {
+                    if ($vv === null || $vv === '' || (pf_is_string_filled($vv) && $this->option('trans') === 'force')) {
                         $vv = (new AsciiSlugger())
                             ->slug($this->translate($kk, 'zh-CN', 'en'))
                             ->lower()
                             ->toString();
                     } elseif (is_array($vv)) {
                         foreach ($vv as $kkk => &$vvv) {
-                            if ($vvv === null || $vvv === '' || $this->option('trans') === 'force') {
+                            if ($vvv === null || $vvv === '' || (pf_is_string_filled($vvv) && $this->option('trans') === 'force')) {
                                 $vvv = (new AsciiSlugger())
                                     ->slug($this->translate($kkk, 'zh-CN', 'en'))
                                     ->lower()
                                     ->toString();
                             } elseif (is_array($vvv)) {
                                 foreach ($vvv as $kkkk => &$vvvv) {
-                                    if ($vvvv === null || $vvvv === '' || $this->option('trans') === 'force') {
+                                    if ($vvvv === null || $vvvv === '' || (pf_is_string_filled($vvvv) && $this->option('trans') === 'force')) {
                                         $vvvv = (new AsciiSlugger())
                                             ->slug($this->translate($kkkk, 'zh-CN', 'en'))
                                             ->lower()
