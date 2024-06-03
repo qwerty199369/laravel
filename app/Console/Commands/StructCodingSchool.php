@@ -215,7 +215,7 @@ class StructCodingSchool extends BaseBot
     private function aigc(string $title, string $tofile): array|true
     {
         if (file_exists($tofile)) {
-            $this->warn("$tofile Exists!");
+            $this->warn("$tofile exists!");
             return true;
         }
 
@@ -230,6 +230,7 @@ class StructCodingSchool extends BaseBot
                 'keep_alive' => '15m',
                 'options' => [
                     'num_ctx' => 2048 * 8,
+                    // 'temperature' => 0.85,
                 ],
                 'messages' => [
                     [
