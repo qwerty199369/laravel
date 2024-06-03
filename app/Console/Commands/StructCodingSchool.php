@@ -191,17 +191,17 @@ class StructCodingSchool extends BaseBot
 
                 $this->fs()->mkdir("$this->dir/$pl/");
 
-                foreach ($plkv as $vv) {
+                foreach ($plkv as $kk => $vv) {
                     if (pf_is_string_filled($vv)) {
-                        $this->aigc($vv, "$this->dir/$pl/$vv.md");
+                        $this->aigc($kk, "$this->dir/$pl/$vv.md");
                     } elseif (is_array($vv)) {
-                        foreach ($vv as $vvv) {
+                        foreach ($vv as $kkk => $vvv) {
                             if (pf_is_string_filled($vvv)) {
-                                $this->aigc($vvv, "$this->dir/$pl/$vvv.md");
+                                $this->aigc($kkk, "$this->dir/$pl/$vvv.md");
                             } elseif (is_array($vvv)) {
-                                foreach ($vvv as $vvvv) {
+                                foreach ($vvv as $kkkk => $vvvv) {
                                     if (pf_is_string_filled($vvvv)) {
-                                        $this->aigc($vvvv, "$this->dir/$pl/$vvvv.md");
+                                        $this->aigc($kkkk, "$this->dir/$pl/$vvvv.md");
                                     }
                                 }
                             }
