@@ -187,22 +187,23 @@ class StructCodingSchool extends BaseBot
             }
 
             if ($this->option('aigc')) {
-                foreach (Yaml::parseFile($plfile) as $kk => $vv) {
-                    $this->fs()->mkdir("$this->dir/$kk/");
-                    foreach ($vv as $kkk => $vvv) {
-                        Assert::true(
-                            (is_string($vvv) && trim($vvv) !== '')
-                            || (is_array($vvv) && count($vvv) !== 0)
-                        );
+                $plkv = Yaml::parseFile($plfile);
 
-                        if (is_string($vvv)) {
-                            $this->aigc($vvv, "$this->dir/$kk/$vvv.md");
-                        }
+                $this->fs()->mkdir("$this->dir/$pl/");
 
-                        if (is_array($vvv)) {
-                            $this->fs()->mkdir("$this->dir/$kk/$kkk/");
-                            foreach ($vvv as $kkkk => $vvvv) {
-                                $this->aigc($vvvv, "$this->dir/$kk/$kkk/$vvvv.md");
+                foreach ($plkv as $vv) {
+                    if (pf_is_string_filled($vv)) {
+                        $this->aigc($vv, "$this->dir/$pl/$vv.md");
+                    } elseif (is_array($vv)) {
+                        foreach ($vv as $vvv) {
+                            if (pf_is_string_filled($vvv)) {
+                                $this->aigc($vvv, "$this->dir/$pl/$vvv.md");
+                            } elseif (is_array($vvv)) {
+                                foreach ($vvv as $vvvv) {
+                                    if (pf_is_string_filled($vvvv)) {
+                                        $this->aigc($vvvv, "$this->dir/$pl/$vvvv.md");
+                                    }
+                                }
                             }
                         }
                     }
@@ -214,6 +215,7 @@ class StructCodingSchool extends BaseBot
     private function aigc(string $title, string $tofile): array|true
     {
         if (file_exists($tofile)) {
+            $this->warn("$tofile Exists!");
             return true;
         }
 
