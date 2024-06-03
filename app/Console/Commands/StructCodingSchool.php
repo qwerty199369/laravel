@@ -150,7 +150,7 @@ class StructCodingSchool extends BaseBot
 
             trans:
 
-            if ($this->hasOption('trans')) {
+            if ($this->option('trans')) {
                 $plkv = Yaml::parseFile($plfile);
 
                 foreach ($plkv as $kk => &$vv) {
@@ -190,7 +190,7 @@ class StructCodingSchool extends BaseBot
                 );
             }
 
-            if ($this->hasOption('aigc')) {
+            if ($this->option('aigc')) {
                 foreach (Yaml::parseFile($plfile) as $kk => $vv) {
                     $this->fs()->mkdir("$this->dir/$kk/");
                     foreach ($vv as $kkk => $vvv) {
