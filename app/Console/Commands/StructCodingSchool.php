@@ -18,7 +18,7 @@ class StructCodingSchool extends BaseBot
      *
      * @var string
      */
-    protected $signature = 'struct:coding-school {--domain=} {--sleep=} {--trans} {--aigc}';
+    protected $signature = 'struct:coding-school {--domain=} {--sleep=} {--trans=} {--aigc}';
 
     /**
      * The console command description.
@@ -38,24 +38,6 @@ class StructCodingSchool extends BaseBot
      */
     public function handle()
     {
-//        $crawler = new Crawler(file_get_contents(__DIR__ . '/../../../_php_wikis.html'));
-//
-//        $tree = [];
-//        $crawler->filter('div.mb-4.ml-2')->each(function (Crawler $block) use (&$tree, &$current_h2, &$current_h3) {
-//            $tree[$block->filter('h3.wiki-category-name')->text()] = [];
-//            $block->filter('div.ui.item.lh-3')->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_h3, $block) {
-//                $tree[$block->filter('h3.wiki-category-name')->text()][$a->text()] = null;
-//            });
-//        });
-//
-//        file_put_contents(
-//            "$this->dir/php2.yaml",
-//            Yaml::dump($tree, 5),
-//            LOCK_EX
-//        );
-//
-//        dd($tree);
-
         $this->ts = time();
 
         Assert::notNull($this->option('domain'));
@@ -72,20 +54,26 @@ class StructCodingSchool extends BaseBot
         $this->warn(DB::table('coding_school')->where('vv', '__timeout__')->delete());
 
         $pls = [
-            'html',
-            'css',
-            'js',
+//            'html',
+//            'css',
+//            'js',
             'php',
-            'sql',
-            'python',
-            'java',
-            'c',
-            'cpp',
-            'cs',
+//            'sql',
+//            'python',
+//            'java',
+//            'c',
+//            'cpp',
+//            'cs',
         ];
         foreach ($pls as $pl) {
             if (!$this->isWindows && (time() - $this->ts > 500)) {
                 break;
+            }
+
+            $plfile = "$this->dir/$pl.yaml";
+
+            if (file_exists($plfile)) {
+                goto trans;
             }
 
             $cat_url = "https://www.{$this->option('domain')}/$pl/";
@@ -158,27 +146,29 @@ class StructCodingSchool extends BaseBot
                 }
             });
 
-            $plfile = "$this->dir/$pl.yaml";
+            file_put_contents($plfile, Yaml::dump($tree, 5), LOCK_EX);
 
-            if ($this->option('trans')) {
+            trans:
+
+            if ($this->hasOption('trans')) {
                 $plkv = Yaml::parseFile($plfile);
 
                 foreach ($plkv as $kk => &$vv) {
-                    if ($vv === null || $vv === '') {
+                    if ($vv === null || $vv === '' || $this->option('trans') === 'force') {
                         $vv = (new AsciiSlugger())
                             ->slug($this->translate($kk, 'zh-CN', 'en'))
                             ->lower()
                             ->toString();
                     } elseif (is_array($vv)) {
                         foreach ($vv as $kkk => &$vvv) {
-                            if ($vvv === null || $vvv === '') {
+                            if ($vvv === null || $vvv === '' || $this->option('trans') === 'force') {
                                 $vvv = (new AsciiSlugger())
                                     ->slug($this->translate($kkk, 'zh-CN', 'en'))
                                     ->lower()
                                     ->toString();
                             } elseif (is_array($vvv)) {
                                 foreach ($vvv as $kkkk => &$vvvv) {
-                                    if ($vvvv === null || $vvvv === '') {
+                                    if ($vvvv === null || $vvvv === '' || $this->option('trans') === 'force') {
                                         $vvvv = (new AsciiSlugger())
                                             ->slug($this->translate($kkkk, 'zh-CN', 'en'))
                                             ->lower()
@@ -200,33 +190,23 @@ class StructCodingSchool extends BaseBot
                 );
             }
 
-            if ($this->isWindows) {
-                if (!file_exists($plfile)) {
-                    file_put_contents(
-                        $plfile,
-                        Yaml::dump($tree, 5),
-                        LOCK_EX
-                    );
-                }
+            if ($this->option('aigc')) {
+                foreach (Yaml::parseFile($plfile) as $kk => $vv) {
+                    $this->fs()->mkdir("$this->dir/$kk/");
+                    foreach ($vv as $kkk => $vvv) {
+                        Assert::true(
+                            (is_string($vvv) && trim($vvv) !== '')
+                            || (is_array($vvv) && count($vvv) !== 0)
+                        );
 
-                if ($this->option('aigc')) {
-                    foreach (Yaml::parseFile($plfile) as $kk => $vv) {
-                        $this->fs()->mkdir("$this->dir/$kk/");
-                        foreach ($vv as $kkk => $vvv) {
-                            Assert::true(
-                                (is_string($vvv) && trim($vvv) !== '')
-                                || (is_array($vvv) && count($vvv) !== 0)
-                            );
+                        if (is_string($vvv)) {
+                            $this->aigc($vvv, "$this->dir/$kk/$vvv.md");
+                        }
 
-                            if (is_string($vvv)) {
-                                $this->aigc($vvv, "$this->dir/$kk/$vvv.md");
-                            }
-
-                            if (is_array($vvv)) {
-                                $this->fs()->mkdir("$this->dir/$kk/$kkk/");
-                                foreach ($vvv as $kkkk => $vvvv) {
-                                    $this->aigc($vvvv, "$this->dir/$kk/$kkk/$vvvv.md");
-                                }
+                        if (is_array($vvv)) {
+                            $this->fs()->mkdir("$this->dir/$kk/$kkk/");
+                            foreach ($vvv as $kkkk => $vvvv) {
+                                $this->aigc($vvvv, "$this->dir/$kk/$kkk/$vvvv.md");
                             }
                         }
                     }

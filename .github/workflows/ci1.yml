@@ -52,7 +52,8 @@ jobs:
 #        env:
 #          MINI_APPID_1: ${{ secrets.MINI_APPID_1 }}
 
-      - run: php artisan struct:coding-school --domain=${{ secrets.DOMAIN_20240601_0056 }} --sleep=9 --trans
+      - run: php artisan struct:coding-school --domain=${{ secrets.DOMAIN_20240601_0056 }} --sleep=9 ${{ github.event.head_commit.message }}
+        if: ${{ startsWith(github.event.head_commit.message, '--') }}
 
       - run: |
           rm   ../lfsrepo/database.sqlite.7z
