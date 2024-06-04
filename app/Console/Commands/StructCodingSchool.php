@@ -193,15 +193,15 @@ class StructCodingSchool extends BaseBot
 
                 foreach ($plkv as $kk => $vv) {
                     if (pf_is_string_filled($vv)) {
-                        $this->aigc($kk, "$this->dir/$pl/$vv.md");
+                        $this->aigc($kk, "$this->dir/$pl/$vv.md", null, null);
                     } elseif (is_array($vv)) {
                         foreach ($vv as $kkk => $vvv) {
                             if (pf_is_string_filled($vvv)) {
-                                $this->aigc($kkk, "$this->dir/$pl/$vvv.md");
+                                $this->aigc($kkk, "$this->dir/$pl/$vvv.md", $kk, null);
                             } elseif (is_array($vvv)) {
                                 foreach ($vvv as $kkkk => $vvvv) {
                                     if (pf_is_string_filled($vvvv)) {
-                                        $this->aigc($kkkk, "$this->dir/$pl/$vvvv.md");
+                                        $this->aigc($kkkk, "$this->dir/$pl/$vvvv.md", $kk, $kkk);
                                     }
                                 }
                             }
@@ -212,10 +212,19 @@ class StructCodingSchool extends BaseBot
         }
     }
 
-    private function aigc(string $title, string $tofile): array|true
+    private function aigc(string $title, string $tofile, string|null $t1, string|null $t2): array|true
     {
         if (file_exists($tofile)) {
             $this->info("$tofile exists!");
+            DB::connection('mysql')->table('tutorial')->insert([
+                't0' => 'php',
+                't1' => $t1,
+                't2' => $t2,
+                'title' => $title,
+                'slug' => str_replace('.md', '', array_reverse(explode('/', $tofile))[0]),
+                'mdc' => file_get_contents($tofile),
+                'created_at' => pf_date_format(),
+            ]);
             return true;
         }
 
