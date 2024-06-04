@@ -215,58 +215,70 @@ class StructCodingSchool extends BaseBot
     private function aigc(string $title, string $tofile): array|true
     {
         if (file_exists($tofile)) {
-            $this->warn("$tofile exists!");
+            $this->info("$tofile exists!");
             return true;
         }
+
+        $this->line($title);
+
+        $suppose = "Suppose you are a software engineer and your programming language is PHP. Your task is to write detailed Chinese tutorials based on my requirements. My first requirement is: [Please write a detailed tutorial titled \"$title\" that explains \"$title\" in depth. The tutorial should be in Chinese. The tutorial should be in Markdown format, with \"# $title\" as the first line of the Markdown.]";
+        $suppose = <<<TXT
+Suppose you are a software engineer and your preferred programming language is PHP. Your task is to write tutorials and technical documents according to my requirements. Here is my first requirement:
+
+Please write a tutorial as detailed as possible, titled "$title", to explain "$title" in depth. The format of the tutorial needs to be markdown. The tutorial needs to be written in Chinese.
+TXT;
+
+
+        dump($suppose);
 
         $sfh = HttpClient::create();
         $sfh_resp = $sfh->request('POST', 'http://192.168.1.18:11434/api/chat', [
             // 'headers' => [],
-            'timeout' => 600.0,
+            'timeout' => 900.0,
             'json' => [
                 'model' => 'codestral:22b',
                 // 'system' => "Let's say you're a computer science teacher at a university and your native language is Chinese.",
                 'stream' => false,
                 'keep_alive' => '15m',
                 'options' => [
-                    'num_ctx' => 2048 * 8,
-                    // 'temperature' => 0.85,
+                    'num_ctx' => 2048 * 4,
+                    'temperature' => 0.75,
                 ],
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "Let's say you're a computer science teacher at a university and your native language is Chinese.",
+                        'content' => $suppose,
                     ],
-                    [
-                        'role' => 'assistant',
-                        'content' => <<<TXT
-Absolutely, I'd be happy to help with that scenario! As a computer science teacher at a university, my primary
-focus would be on educating students about various aspects of computer science such as algorithms, data
-structures, artificial intelligence, machine learning, software engineering, and more.
-
-Given that Chinese is my native language, I would provide lectures in both English (to accommodate international
-students) and Chinese to ensure all students can understand the concepts being taught. For this reason, it's
-essential for me to have strong communication skills in both languages to effectively explain complex computer
-science concepts.
-
-I would also create study materials such as textbooks, slideshows, and practice problems in both English and
-Chinese. Additionally, I might utilize online resources, multimedia, and interactive learning platforms to enhance
-the learning experience. To support students' understanding, I could also organize office hours or virtual study
-groups where students can ask questions in either language.
-
-Lastly, being a teacher means staying updated with the latest research and technologies in computer science. This
-would involve reading academic papers, attending workshops and conferences, and collaborating with other
-professionals in the field. As my native language is Chinese, I might also have access to resources or discussions
-that occur within the Chinese-speaking community which could benefit both myself and my students.
-
-Overall, my role as a computer science teacher would be focused on providing a comprehensive and engaging learning
-experience for all of my students, regardless of their native language backgrounds.
-TXT,
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => "Please write a detailed tutorial titled \"$title\" that explains $title in depth. The tutorial should be in Chinese. The tutorial should be in Markdown format, with \"# $title\" as the first line of the Markdown.",
-                    ],
+//                    [
+//                        'role' => 'assistant',
+//                        'content' => <<<TXT
+//Absolutely, I'd be happy to help with that scenario! As a computer science teacher at a university, my primary
+//focus would be on educating students about various aspects of computer science such as algorithms, data
+//structures, artificial intelligence, machine learning, software engineering, and more.
+//
+//Given that Chinese is my native language, I would provide lectures in both English (to accommodate international
+//students) and Chinese to ensure all students can understand the concepts being taught. For this reason, it's
+//essential for me to have strong communication skills in both languages to effectively explain complex computer
+//science concepts.
+//
+//I would also create study materials such as textbooks, slideshows, and practice problems in both English and
+//Chinese. Additionally, I might utilize online resources, multimedia, and interactive learning platforms to enhance
+//the learning experience. To support students' understanding, I could also organize office hours or virtual study
+//groups where students can ask questions in either language.
+//
+//Lastly, being a teacher means staying updated with the latest research and technologies in computer science. This
+//would involve reading academic papers, attending workshops and conferences, and collaborating with other
+//professionals in the field. As my native language is Chinese, I might also have access to resources or discussions
+//that occur within the Chinese-speaking community which could benefit both myself and my students.
+//
+//Overall, my role as a computer science teacher would be focused on providing a comprehensive and engaging learning
+//experience for all of my students, regardless of their native language backgrounds.
+//TXT,
+//                    ],
+//                    [
+//                        'role' => 'user',
+//                        'content' => "Please write a detailed tutorial titled \"$title\" that explains $title in depth. The tutorial should be in Chinese. The tutorial should be in Markdown format, with \"# $title\" as the first line of the Markdown.",
+//                    ],
                 ],
             ],
         ]);
