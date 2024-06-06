@@ -31,7 +31,7 @@ abstract class BaseBot extends Command
         return $this->reqURL('GET', $url, $headers, null, $on_timeout, $on_404);
     }
 
-    protected function postURL(string $url, string $body, array $headers, callable $on_timeout = null, callable $on_404 = null): ?string
+    protected function postURL(string $url, string|array $body, array $headers, callable $on_timeout = null, callable $on_404 = null): ?string
     {
         return $this->reqURL('POST', $url, $headers, $body, $on_timeout, $on_404);
     }
@@ -58,6 +58,51 @@ abstract class BaseBot extends Command
         callable $respMiddleware = null
     ): string|null
     {
+        return $this->reqURLWithDB(
+            'GET',
+            $url,
+            null,
+            $headers,
+            $table,
+            $findOrInsert,
+            $forceHttp,
+            $respMiddleware
+        );
+    }
+
+    protected function postURLWithDB(
+        string $url,
+        string|array $body,
+        array $headers,
+        string $table,
+        array $findOrInsert,
+        callable $forceHttp = null,
+        callable $respMiddleware = null
+    ): string|null
+    {
+        return $this->reqURLWithDB(
+            'POST',
+            $url,
+            $body,
+            $headers,
+            $table,
+            $findOrInsert,
+            $forceHttp,
+            $respMiddleware
+        );
+    }
+
+    protected function reqURLWithDB(
+        string $method,
+        string $url,
+        string|array|null $body,
+        array $headers,
+        string $table,
+        array $findOrInsert,
+        callable $forceHttp = null,
+        callable $respMiddleware = null
+    ): string|null
+    {
         if ($this->isWindows) {
             $this->line(rawurldecode($url));
         }
@@ -77,16 +122,32 @@ abstract class BaseBot extends Command
 
         DB::select("PRAGMA synchronous = OFF");
 
-        $resp = $this->getURL(
-            $url,
-            $headers,
-            on_timeout: fn() => DB::table($table)->insert(array_merge($findOrInsert, [
-                'vv' => '__timeout__',
-            ])),
-            on_404: fn() => DB::table($table)->insert(array_merge($findOrInsert, [
-                'vv' => '__404__',
-            ])),
-        );
+        if ($method === 'GET') {
+            $resp = $this->getURL(
+                $url,
+                $headers,
+                on_timeout: fn() => DB::table($table)->insert(array_merge($findOrInsert, [
+                    'vv' => '__timeout__',
+                ])),
+                on_404: fn() => DB::table($table)->insert(array_merge($findOrInsert, [
+                    'vv' => '__404__',
+                ])),
+            );
+        } elseif ($method === 'POST') {
+            $resp = $this->postURL(
+                $url,
+                $body,
+                $headers,
+                on_timeout: fn() => DB::table($table)->insert(array_merge($findOrInsert, [
+                    'vv' => '__timeout__',
+                ])),
+                on_404: fn() => DB::table($table)->insert(array_merge($findOrInsert, [
+                    'vv' => '__404__',
+                ])),
+            );
+        } else {
+            dd($method);
+        }
 
         if ($respMiddleware !== null) {
             $resp = $respMiddleware($resp);
