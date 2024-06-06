@@ -1,0 +1,50 @@
+{
+    "query": {
+        "endTime": "",
+        "keyword": "腹腔镜",
+        "noticeTypes": [
+            "1091:11"
+        ],
+        "startTime": "",
+        "enterpriseId": "",
+        "enterpriseName": "",
+        "searchSource": 1,
+        "matchType": "term",
+        "matchFields": [
+            "title",
+            "content"
+        ],
+        "informationTypes": [
+            "中标"
+        ],
+        "sortType": "desc",
+        "excludeKeyword": "",
+        "areaQuery": {
+            "dicts": [
+                {
+                    "code": "110000",
+                    "children": [
+                        {
+                            "code": "110106",
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        "tenderPrincipalTypeCodes": [],
+        "tenderItemCategories": [],
+        "tenderItemIndustries": [],
+        "enterpriseType": [],
+        "contactFilterType": "",
+        "agencyPrincipalFilterType": "",
+        "winnerFilterType": "",
+        "attachmentFilterType": "",
+        "biddingAcquireTimeItem": "",
+        "tenderTimeItem": "",
+        "openBidingTimeItem": "",
+        "pageNum": 1,
+        "pageSize": 20,
+        "platform": "pc"
+    }
+}
