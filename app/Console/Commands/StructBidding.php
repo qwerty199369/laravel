@@ -50,7 +50,7 @@ class StructBidding extends BaseBot
         foreach ($words as $word) {
         foreach ($dict['data']['areaCodeTree'] as $code1) {
         foreach ($code1['children'] as $code2) {
-            if (time() - $this->ts > 3000) {
+            if (!$this->isWindows && (time() - $this->ts > 3000)) {
                 break;
             }
 
@@ -121,28 +121,29 @@ JSON;
                         'Accept-Encoding' => 'gzip, deflate, br, zstd',
                         'Accept-Language' => 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
                         'Content-Type' => 'application/json;charset=UTF-8',
-                        'User-Info' => 'uc_id=;uc_appid=585;acc_token=61219e2bba313627873b5e6babf55dac58a5ba2d1ebbeaf4e63dde3bfe7dc5a9;acc_id=311101137;login_id=311101137:0;device_type=bid-pc;paas_appid=16;version=12;login_type=passport',
+                        'User-Info' => 'uc_id=;uc_appid=585;acc_token=;acc_id=349117365;login_id=349117365:0;device_type=bid-pc718829581976469504;paas_appid=16;version=12;login_type=wx',
                         'Env' => 'WEB',
                         'X-Requested-With' => 'XMLHttpRequest',
                         'Api-Version' => '0',
                         'Client-Version' => '0',
                         'Auth-Type' => 'PAAS',
-                        'X-Sourceid' => '1003ef8b0ca38677023de877ca6680aa',
-                        'X-Timestamp' => '1717649520',
+                        'X-Sourceid' => 'dc9492438d228d6c743ab3563ccf21f7',
+                        'X-Timestamp' => time(),
+                        'Priority' => 'u=1',
                         'Acs-Token' => trim(file_get_contents(__DIR__ . '/acs-token.txt')),
                         'Origin' => "https://{$this->option('domain')}",
                         'Connection' => 'keep-alive',
                         'Host' => "{$this->option('domain')}",
                         'Referer' => "https://{$this->option('domain')}/s?q=%E8%85%B9%E8%85%94%E9%95%9C&tab=0&count",
-                        'User-Agent' => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0",
+                        'User-Agent' => "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
                         'Cookie' => trim(file_get_contents(__DIR__ . '/cookie.txt')),
                     ],
                     'bidding',
                     [
-                        'kk' => "https://{$this->option('domain')}/crm/web/bid/xbb/bidding/search/api/search.$word.$page.json",
+                        'kk' => "https://{$this->option('domain')}/crm/web/bid/xbb/bidding/search/api/search.$word.{$code1['value']}.{$code2['value']}.$page.json",
                         // 'kk' => "https://www.test.com/test".time().".json",
                     ],
-                    fn() => true
+                    fn() => false
                 );
 
                 if (!json_validate($searchResult)) {
@@ -151,28 +152,7 @@ JSON;
 
                 $searchResult = json_decode($searchResult, true);
 
-                dd($searchResult);
-
-                if (!isset($searchResult['data']['rows'])) {
-                    break;
-                }
-
-                foreach ($searchResult['data']['rows'] as $row) {
-                    $productHtml = $this->getURLWithDB(
-                        "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html#{$row['id']}",
-                        [
-                            'Accept' => '*/*',
-                            'Accept-Encoding' => 'gzip, deflate',
-                            'Host' => "www.{$this->option('domain')}",
-                            'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
-                        ],
-                        'bidding',
-                        [
-                            'kk' => "https://www.{$this->option('domain')}/prod/detail/{$row['id']}.html",
-                        ]
-                    );
-                }
-            } while (count($searchResult['data']['rows']) >= $pageSize);
+            } while (count($searchResult['data']['dataList']) >= $pageSize);
         }
         }
         }

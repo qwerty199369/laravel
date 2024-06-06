@@ -162,6 +162,7 @@ abstract class BaseBot extends Command
         ]));
 
         if ($ok) {
+            $this->info(rawurldecode(http_build_query($findOrInsert)));
             $this->info("db insert successful, content length: " . mb_strlen($resp));
         } else {
             $this->warn("db insert failed");
@@ -183,7 +184,7 @@ abstract class BaseBot extends Command
     {
         $fragment = parse_url(rawurldecode($url), PHP_URL_FRAGMENT);
 
-        $this->line("[$method]: [$fragment]");
+        $this->line("[$method]: [#$fragment]");
 
         $this->sf_response = null;
 
