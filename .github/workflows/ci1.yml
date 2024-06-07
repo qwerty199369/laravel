@@ -74,6 +74,11 @@ jobs:
       # to LFS
       - run: git -C "../lfsrepo" config user.name "${{ secrets.LFS_REPO_USER }}"
       - run: git -C "../lfsrepo" config user.email "${{ secrets.LFS_REPO_USER }}@${{ secrets.LFS_REPO_USER }}.com"
+
+      - run: git -C "../lfsrepo" add *.yaml
+      - run: git -C "../lfsrepo" commit -m "to LFS"
+      - run: git -C "../lfsrepo" push
+
       - run: git -C "../lfsrepo" add .
       - run: git -C "../lfsrepo" commit -m "to LFS"
       - run: git -C "../lfsrepo" push
