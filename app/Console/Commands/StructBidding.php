@@ -17,7 +17,7 @@ class StructBidding extends BaseBot
      *
      * @var string
      */
-    protected $signature = 'struct:bidding {--domain=} {--sleep=}';
+    protected $signature = 'struct:bidding {--domain=} {--sleep=} {--split}';
 
     /**
      * The console command description.
@@ -54,9 +54,9 @@ class StructBidding extends BaseBot
 
         $dict = json_decode_320(file_get_contents(__DIR__ . '/dict.json'));
 
-        $words = ['心脏起搏器', '除颤仪', '透析设备', '麻醉机', '助听器', '腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
+        $words = ['心脏起搏器', '除颤仪', '透析设备', '腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
         $noticeTypes = ['1091:11' => '中标']; // TODO: 暂未使用
-        foreach ($words as $word) {
+        foreach ($words as $word) { // words 须放在第一层
         foreach ($noticeTypes as $noticeType => $noticeTypeText) {
         foreach ($dict['data']['areaCodeTree'] as $code1) {
         foreach ($code1['children'] as $code2) {
@@ -196,27 +196,49 @@ JSON;
         }
         }
         }
-        }
 
+        if ($this->option('split')) {
+            $csv = Writer::createFromString();
+            $csv->setOutputBOM(Writer::BOM_UTF8);
 
-        $csv = Writer::createFromString();
-        $csv->setOutputBOM(Writer::BOM_UTF8);
-
-        $i = 0;
-        foreach ($this->bidding as $row) {
-            $i++;
-            if ($i === 1) {
-                $csv->insertOne(array_keys($row));
+            $i = 0;
+            foreach ($this->bidding as $row) {
+                $i++;
+                if ($i === 1) {
+                    $csv->insertOne(array_keys($row));
+                }
+                $csv->insertOne(array_values($row));
             }
-            $csv->insertOne(array_values($row));
+
+            $fs = new Filesystem();
+            $fs->dumpFile(storage_path(sprintf(
+                "/AQC__%s__%s.csv",
+                implode('_', $noticeTypes),
+                $word
+            )), $csv->toString());
         }
 
-        $fs = new Filesystem();
-        $fs->dumpFile(storage_path(sprintf(
-            "/AQC__%s__%s.csv",
-            implode('_', $noticeTypes),
-            implode('_', $words)
-        )), $csv->toString());
+        }
+
+
+//        $csv = Writer::createFromString();
+//        $csv->setOutputBOM(Writer::BOM_UTF8);
+//
+//        $i = 0;
+//        foreach ($this->bidding as $row) {
+//            $i++;
+//            if ($i === 1) {
+//                $csv->insertOne(array_keys($row));
+//            }
+//            $csv->insertOne(array_values($row));
+//        }
+//
+//        $fs = new Filesystem();
+//        $fs->dumpFile(storage_path(sprintf(
+//            "/AQC__%s__%s.csv",
+//            implode('_', $noticeTypes),
+//            implode('_', $words)
+//        )), $csv->toString());
     }
 
     private array $bidding = [];
