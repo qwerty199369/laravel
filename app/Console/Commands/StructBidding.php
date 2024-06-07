@@ -5,7 +5,9 @@ namespace App\Console\Commands;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use League\Csv\Writer;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Assert\Assert;
 
 class StructBidding extends BaseBot
@@ -53,7 +55,9 @@ class StructBidding extends BaseBot
         $dict = json_decode_320(file_get_contents(__DIR__ . '/dict.json'));
 
         $words = ['心脏起搏器', '除颤仪', '透析设备', '麻醉机', '助听器', '腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
+        $noticeTypes = ['1091:11' => '中标']; // TODO: 暂未使用
         foreach ($words as $word) {
+        foreach ($noticeTypes as $noticeType => $noticeTypeText) {
         foreach ($dict['data']['areaCodeTree'] as $code1) {
         foreach ($code1['children'] as $code2) {
             if (!$this->isWindows && (time() - $this->ts > 3000)) {
@@ -161,9 +165,59 @@ JSON;
                 if (!isset($searchResultArray['data']['dataList'])) {
                     dd($searchResult);
                 }
+
+                foreach ($searchResultArray['data']['dataList'] as $datum) {
+                    $datumId = $datum['id'];
+                    $this->bidding[$datumId] = [
+                        '标题' => $datum['title'],
+                        '内容文本' => strip_tags($datum['content']),
+                        '项目编号' => $datum['projectNo'],
+                        '时间' => $datum['publishDate'],
+                        '开标时间' => $datum['openBidingTime'],
+                        '类型' => $datum['noticeType'],
+                        '相关产品' => implode(',', $datum['productLabels']),
+                        '省份' => $datum['province'],
+                        '城市' => $code2['city'],
+                        '系统搜索城市' => $code2['title'],
+                        '招标单位' => implode(',', array_column($datum['tenderPrincipal'], 'name')),
+                        '招标单位类型' => implode(',', $datum['tenderPrincipalTypes']),
+                        '预算金额' => $datum['readableBudget'],
+                        '系统解析预算金额（不可靠，以预算金额为准）' => $datum['budget'],
+                        '代理单位' => implode(',', $datum['agencyPrincipal']),
+                        '产品标签' => implode(',', $datum['productLabels']),
+                        '中标单位' => implode(',', array_column($datum['winnerPrincipal'], 'name')),
+                        '中标金额' => $datum['readableWinnerAmount'],
+                        '系统解析数字金额（不可靠，以中标金额为准）' => $datum['winnerAmount'],
+                        '标签' => implode(',', $datum['displayTags']),
+                        '' => $datum[''],
+                    ];
+                }
             } while (count($searchResultArray['data']['dataList']) >= $pageSize);
         }
         }
         }
+        }
+
+
+        $csv = Writer::createFromString();
+        $csv->setOutputBOM(Writer::BOM_UTF8);
+
+        $i = 0;
+        foreach ($this->bidding as $row) {
+            $i++;
+            if ($i === 1) {
+                $csv->insertOne(array_keys($row));
+            }
+            $csv->insertOne(array_values($row));
+        }
+
+        $fs = new Filesystem();
+        $fs->dumpFile(storage_path(sprintf(
+            "/AQC__%s__%s.csv",
+            implode('_', $noticeTypes),
+            implode('_', $words)
+        )), $csv->toString());
     }
+
+    private array $bidding = [];
 }
