@@ -54,7 +54,7 @@ class StructBidding extends BaseBot
 
         $dict = json_decode_320(file_get_contents(__DIR__ . '/dict.json'));
 
-        $words = ['心脏起搏器', '除颤仪', '透析设备', '腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
+        $words = ['心脏起搏器', '除颤仪', '透析设备', '麻醉机', '助听器', '腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
         $noticeTypes = ['1091:11' => '中标']; // TODO: 暂未使用
         foreach ($words as $word) {
         foreach ($noticeTypes as $noticeType => $noticeTypeText) {
