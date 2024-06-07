@@ -44,9 +44,15 @@ class StructBidding extends BaseBot
             });
         }
 
+        dump(
+            DB::table('bidding')
+                ->where('vv', '{"code":"9499","data":{},"msg":"相关词长度1~20! ","redirectUrl":null}')
+                ->delete()
+        );
+
         $dict = json_decode_320(file_get_contents(__DIR__ . '/dict.json'));
 
-        $words = ['腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
+        $words = ['心脏起搏器', '除颤仪', '透析设备', '麻醉机', '助听器', '腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
         foreach ($words as $word) {
         foreach ($dict['data']['areaCodeTree'] as $code1) {
         foreach ($code1['children'] as $code2) {
@@ -150,9 +156,12 @@ JSON;
                     break;
                 }
 
-                $searchResult = json_decode($searchResult, true);
+                $searchResultArray = json_decode($searchResult, true);
 
-            } while (count($searchResult['data']['dataList']) >= $pageSize);
+                if (!isset($searchResultArray['data']['dataList'])) {
+                    dd($searchResult);
+                }
+            } while (count($searchResultArray['data']['dataList']) >= $pageSize);
         }
         }
         }
