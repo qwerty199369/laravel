@@ -57,13 +57,14 @@ class StructCodingSchool extends BaseBot
 //            'html',
 //            'css',
 //            'js',
-            'php',
+//            'php',
 //            'sql',
 //            'python',
 //            'java',
 //            'c',
 //            'cpp',
 //            'cs',
+            'rust',
         ];
         foreach ($pls as $pl) {
             if (!$this->isWindows && (time() - $this->ts > 500)) {
@@ -76,75 +77,79 @@ class StructCodingSchool extends BaseBot
                 goto trans;
             }
 
-            $cat_url = "https://www.{$this->option('domain')}/$pl/";
+            if (method_exists($this, "crawl_$pl")) {
+                $tree = $this->{"crawl_$pl"}();
+            } else {
+                $cat_url = "https://www.{$this->option('domain')}/$pl/";
 
-            $html = $this->getURLWithDB(
-                "$cat_url#$pl",
-                [
-                    'Accept' => '*/*',
-                    'Accept-Encoding' => 'gzip, deflate',
-                    'Host' => "www.{$this->option('domain')}",
-                    'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
-                ],
-                'coding_school',
-                [
-                    'kk' => $cat_url,
-                ]
-            );
+                $html = $this->getURLWithDB(
+                    "$cat_url#$pl",
+                    [
+                        'Accept' => '*/*',
+                        'Accept-Encoding' => 'gzip, deflate',
+                        'Host' => "www.{$this->option('domain')}",
+                        'User-Agent' => "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+                    ],
+                    'coding_school',
+                    [
+                        'kk' => $cat_url,
+                    ]
+                );
 
-            if ($html === null) {
-                continue;
-            }
-
-            $crawler = new Crawler($html);
-
-            $tree = [];
-            $current_h2 = null;
-            $current_a = null;
-            $crawler->filter('#leftmenuinnerinner')->children()->each(function (Crawler $tag) use (&$tree, &$current_h2, &$current_a, $cat_url) {
-                if (!$this->isWindows && (time() - $this->ts > 500)) {
-                    return;
+                if ($html === null) {
+                    continue;
                 }
-                if ($tag->nodeName() === 'h2') {
-                    $current_h2 = $tag->text();
-                    $tree[$current_h2] = [];
-                } elseif ($tag->nodeName() === 'a') {
-                    $current_a = $tag->text();
 
-                    $x2crawler = new Crawler($this->getHref($tag, $cat_url));
-                    $x2h1 = $x2crawler->filter('h1')->text();
-                    $tree[$current_h2][$x2h1] = null;
-                } elseif ($tag->nodeName() === 'div') {
-                    if ($tag->attr('class') === 'ref_overview' || $tag->attr('class') === 'tut_overview') {
-                        $tree[$current_h2][$current_a] = [];
-                        $tag->children()->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_a, $cat_url) {
-                            if (!$this->isWindows && (time() - $this->ts > 500)) {
-                                return;
-                            }
-                            if ($a->nodeName() === 'br') {
-                                return;
-                            }
-                            if ($a->nodeName() === 'span') {
-                                $this->warn("$current_h2, $current_a, {$a->text()}");
-                                return;
-                            }
-                            if ($a->nodeName() !== 'a') {
-                                dd($current_h2, $current_a, $a->nodeName());
-                            }
+                $crawler = new Crawler($html);
 
-                            $x3crawler = new Crawler($this->getHref($a, $cat_url));
-                            $x3h1 = $x3crawler->filter('h1')->text();
-                            $tree[$current_h2][$current_a][$x3h1] = null;
-                        });
-                    } else {
-                        dd($tag->attr('class'));
+                $tree = [];
+                $current_h2 = null;
+                $current_a = null;
+                $crawler->filter('#leftmenuinnerinner')->children()->each(function (Crawler $tag) use (&$tree, &$current_h2, &$current_a, $cat_url) {
+                    if (!$this->isWindows && (time() - $this->ts > 500)) {
+                        return;
                     }
-                } elseif ($tag->nodeName() === 'br') {
-                    return;
-                } elseif ($tag->nodeName() === 'br') {
-                    dd($tag->nodeName());
-                }
-            });
+                    if ($tag->nodeName() === 'h2') {
+                        $current_h2 = $tag->text();
+                        $tree[$current_h2] = [];
+                    } elseif ($tag->nodeName() === 'a') {
+                        $current_a = $tag->text();
+
+                        $x2crawler = new Crawler($this->getHref($tag, $cat_url));
+                        $x2h1 = $x2crawler->filter('h1')->text();
+                        $tree[$current_h2][$x2h1] = null;
+                    } elseif ($tag->nodeName() === 'div') {
+                        if ($tag->attr('class') === 'ref_overview' || $tag->attr('class') === 'tut_overview') {
+                            $tree[$current_h2][$current_a] = [];
+                            $tag->children()->each(function (Crawler $a) use (&$tree, &$current_h2, &$current_a, $cat_url) {
+                                if (!$this->isWindows && (time() - $this->ts > 500)) {
+                                    return;
+                                }
+                                if ($a->nodeName() === 'br') {
+                                    return;
+                                }
+                                if ($a->nodeName() === 'span') {
+                                    $this->warn("$current_h2, $current_a, {$a->text()}");
+                                    return;
+                                }
+                                if ($a->nodeName() !== 'a') {
+                                    dd($current_h2, $current_a, $a->nodeName());
+                                }
+
+                                $x3crawler = new Crawler($this->getHref($a, $cat_url));
+                                $x3h1 = $x3crawler->filter('h1')->text();
+                                $tree[$current_h2][$current_a][$x3h1] = null;
+                            });
+                        } else {
+                            dd($tag->attr('class'));
+                        }
+                    } elseif ($tag->nodeName() === 'br') {
+                        return;
+                    } elseif ($tag->nodeName() === 'br') {
+                        dd($tag->nodeName());
+                    }
+                });
+            }
 
             file_put_contents($plfile, Yaml::dump($tree, 5), LOCK_EX);
 
@@ -210,6 +215,40 @@ class StructCodingSchool extends BaseBot
                 }
             }
         }
+    }
+
+    private function crawl_rust(): array
+    {
+        $html = $this->getURL(
+            "https://kaisery.github.io/trpl-zh-cn/title-page.html",
+            [
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Accept-Encoding' => 'gzip, deflate, br, zstd',
+                'Accept-Language' => 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
+                'Connection' => 'keep-alive',
+                'Host' => "kaisery.github.io",
+                'User-Agent' => "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
+            ]
+        );
+
+        $crawler = new Crawler($html);
+
+        $tree = [];
+        $current_li = null;
+        $crawler->filter('.sidebar-scrollbox > ol > li')->each(function (Crawler $li) use (&$tree, &$current_li) {
+            if ($li->filter('ol')->count() === 0) {
+                $current_li = $li->text();
+                $tree[$current_li] = null;
+            } elseif ($li->filter('ol')->count() === 1) {
+                $li->filter('ol li')->each(function (Crawler $li2) use (&$tree, $current_li) {
+                    $tree[$current_li][$li2->text()] = null;
+                });
+            } else {
+                dd($li->filter('ol')->count());
+            }
+        });
+
+        return $tree;
     }
 
     private function aigc(string $title, string $tofile, string|null $t1, string|null $t2): array|true
