@@ -54,7 +54,7 @@ class StructBidding extends BaseBot
 
         $dict = json_decode_320(file_get_contents(__DIR__ . '/dict.json'));
 
-        $words = ['心脏起搏器', '除颤仪', '透析设备', '麻醉机', '助听器', '腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
+        $words = ['心脏起搏器', '除颤仪', '透析设备', '腹腔镜', '喉镜', '胃镜', '结肠镜', '宫腔镜', '膀胱镜'];
         $noticeTypes = ['1091:11' => '中标']; // TODO: 暂未使用
         foreach ($words as $word) {
         foreach ($noticeTypes as $noticeType => $noticeTypeText) {
@@ -170,6 +170,8 @@ JSON;
                     $datumId = $datum['id'];
                     // dump($datum);
                     $this->bidding[$datumId] = [
+                        '搜索用词' => $word,
+                        '搜索城市' => $code2['title'],
                         '标题' => $datum['title'],
                         '内容文本' => strip_tags($datum['content']),
                         '项目编号' => $datum['projectNo'],
@@ -178,16 +180,15 @@ JSON;
                         '类型' => $datum['noticeType'],
                         '省份' => $datum['province'],
                         '城市' => $datum['city'],
-                        '系统搜索城市' => $code2['title'],
                         '招标单位（如解析失败，请查看标题字段）' => implode(',', array_column($datum['tenderPrincipal'] ?? [], 'name')),
                         '招标单位类型' => implode(',', $datum['tenderPrincipalTypes'] ?? []),
                         '预算金额' => $datum['readableBudget'],
-                        '系统解析预算金额（不可靠，以预算金额为准）' => $datum['budget'],
+                        '预算金额数字（系统解析结果，可能不准确，以预算金额为准）' => $datum['budget'],
                         '代理单位' => implode(',', array_column($datum['agencyPrincipal'] ?? [], 'name')),
                         '相关产品标签' => implode(',', $datum['productLabels'] ?? []),
                         '中标单位（如解析失败，请查看内容文本字段）' => implode(',', array_column($datum['winnerPrincipal'] ?? [], 'name')),
                         '中标金额' => $datum['readableWinnerAmount'],
-                        '系统解析数字金额（不可靠，以中标金额为准）' => $datum['winnerAmount'],
+                        '中标金额数字（系统解析结果，可能不准确，以中标金额为准）' => $datum['winnerAmount'],
                         '标签' => implode(',', $datum['displayTags']),
                     ];
                 }
