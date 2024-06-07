@@ -168,6 +168,7 @@ JSON;
 
                 foreach ($searchResultArray['data']['dataList'] as $datum) {
                     $datumId = $datum['id'];
+                    // dump($datum);
                     $this->bidding[$datumId] = [
                         '标题' => $datum['title'],
                         '内容文本' => strip_tags($datum['content']),
@@ -175,21 +176,19 @@ JSON;
                         '时间' => $datum['publishDate'],
                         '开标时间' => $datum['openBidingTime'],
                         '类型' => $datum['noticeType'],
-                        '相关产品' => implode(',', $datum['productLabels']),
                         '省份' => $datum['province'],
-                        '城市' => $code2['city'],
+                        '城市' => $datum['city'],
                         '系统搜索城市' => $code2['title'],
-                        '招标单位' => implode(',', array_column($datum['tenderPrincipal'], 'name')),
-                        '招标单位类型' => implode(',', $datum['tenderPrincipalTypes']),
+                        '招标单位（如解析失败，请查看标题字段）' => implode(',', array_column($datum['tenderPrincipal'] ?? [], 'name')),
+                        '招标单位类型' => implode(',', $datum['tenderPrincipalTypes'] ?? []),
                         '预算金额' => $datum['readableBudget'],
                         '系统解析预算金额（不可靠，以预算金额为准）' => $datum['budget'],
-                        '代理单位' => implode(',', $datum['agencyPrincipal']),
-                        '产品标签' => implode(',', $datum['productLabels']),
-                        '中标单位' => implode(',', array_column($datum['winnerPrincipal'], 'name')),
+                        '代理单位' => implode(',', array_column($datum['agencyPrincipal'] ?? [], 'name')),
+                        '相关产品标签' => implode(',', $datum['productLabels'] ?? []),
+                        '中标单位（如解析失败，请查看内容文本字段）' => implode(',', array_column($datum['winnerPrincipal'] ?? [], 'name')),
                         '中标金额' => $datum['readableWinnerAmount'],
                         '系统解析数字金额（不可靠，以中标金额为准）' => $datum['winnerAmount'],
                         '标签' => implode(',', $datum['displayTags']),
-                        '' => $datum[''],
                     ];
                 }
             } while (count($searchResultArray['data']['dataList']) >= $pageSize);
