@@ -33,6 +33,20 @@ class StructCodingSchool extends BaseBot
         ? 'D:/repos/lfsfiles_alpha/coding-school'
         : __DIR__ . '/../../../../lfsrepo/coding-school';
 
+    private array $pls = [
+//            'html',
+//            'css',
+//            'js',
+        'php' => 'PHP',
+//            'sql',
+        'python' => 'Python 3',
+//            'java',
+//            'c',
+//            'cpp',
+//            'cs',
+        'rust' => 'Rust',
+    ];
+
     /**
      * Execute the console command.
      */
@@ -53,20 +67,7 @@ class StructCodingSchool extends BaseBot
 
         $this->warn(DB::table('coding_school')->where('vv', '__timeout__')->delete());
 
-        $pls = [
-//            'html',
-//            'css',
-//            'js',
-//            'php',
-//            'sql',
-//            'python',
-//            'java',
-//            'c',
-//            'cpp',
-//            'cs',
-            'rust',
-        ];
-        foreach ($pls as $pl) {
+        foreach ($this->pls as $pl => $alias) {
             if (!$this->isWindows && (time() - $this->ts > 500)) {
                 break;
             }
@@ -198,15 +199,15 @@ class StructCodingSchool extends BaseBot
 
                 foreach ($plkv as $kk => $vv) {
                     if (pf_is_string_filled($vv)) {
-                        $this->aigc($kk, "$this->dir/$pl/$vv.md", null, null);
+                        $this->aigc($kk, "$this->dir/$pl/$vv.md", $pl, null, null);
                     } elseif (is_array($vv)) {
                         foreach ($vv as $kkk => $vvv) {
                             if (pf_is_string_filled($vvv)) {
-                                $this->aigc($kkk, "$this->dir/$pl/$vvv.md", $kk, null);
+                                $this->aigc($kkk, "$this->dir/$pl/$vvv.md", $pl, $kk, null);
                             } elseif (is_array($vvv)) {
                                 foreach ($vvv as $kkkk => $vvvv) {
                                     if (pf_is_string_filled($vvvv)) {
-                                        $this->aigc($kkkk, "$this->dir/$pl/$vvvv.md", $kk, $kkk);
+                                        $this->aigc($kkkk, "$this->dir/$pl/$vvvv.md", $pl, $kk, $kkk);
                                     }
                                 }
                             }
@@ -251,12 +252,12 @@ class StructCodingSchool extends BaseBot
         return $tree;
     }
 
-    private function aigc(string $title, string $tofile, string|null $t1, string|null $t2): array|true
+    private function aigc(string $title, string $tofile, string $t0, string|null $t1, string|null $t2): array|true
     {
         if (file_exists($tofile)) {
             $this->info("$tofile exists!");
             DB::connection('mysql')->table('tutorial')->insert([
-                't0' => 'php',
+                't0' => $t0,
                 't1' => $t1,
                 't2' => $t2,
                 'title' => $title,
@@ -269,16 +270,15 @@ class StructCodingSchool extends BaseBot
 
         $this->line($title);
 
-        $suppose = "Suppose you are a software engineer and your programming language is PHP. Your task is to write detailed Chinese tutorials based on my requirements. My first requirement is: [Please write a detailed tutorial titled \"$title\" that explains \"$title\" in depth. The tutorial should be in Chinese. The tutorial should be in Markdown format, with \"# $title\" as the first line of the Markdown.]";
+        // $suppose = "Suppose you are a software engineer and your programming language is $preferred_pl. Your task is to write detailed Chinese tutorials based on my requirements. My first requirement is: [Please write a detailed tutorial titled \"$title\" that explains \"$title\" in depth. The tutorial should be in Chinese. The tutorial should be in Markdown format, with \"# $title\" as the first line of the Markdown.]";
+        $preferred_pl = $this->pls[$t0];
         $suppose = <<<TXT
-Suppose you are a software engineer and your preferred programming language is PHP. Your task is to write tutorials and technical documents according to my requirements. Here is my first requirement:
+Suppose you are a software engineer and your preferred programming language is $preferred_pl. Your task is to write tutorials and technical documents according to my requirements. Here is my first requirement:
 
 Please write a tutorial as detailed as possible, titled "$title", to explain "$title" in depth. The format of the tutorial needs to be markdown. The tutorial needs to be written in Chinese.
 TXT;
 
-
-        dump($suppose);
-
+        sleep(45);
         $sfh = HttpClient::create();
         $sfh_resp = $sfh->request('POST', 'http://192.168.1.18:11434/api/chat', [
             // 'headers' => [],
