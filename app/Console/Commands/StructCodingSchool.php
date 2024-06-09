@@ -34,17 +34,17 @@ class StructCodingSchool extends BaseBot
         : __DIR__ . '/../../../../lfsrepo/coding-school';
 
     private array $pls = [
-//            'html',
+            'html',
 //            'css',
 //            'js',
-        'php' => 'PHP',
+//        'php' => 'PHP',
 //            'sql',
-        'python' => 'Python 3',
+//        'python' => 'Python 3',
 //            'java',
 //            'c',
 //            'cpp',
 //            'cs',
-        'rust' => 'Rust',
+//        'rust' => 'Rust',
     ];
 
     /**
