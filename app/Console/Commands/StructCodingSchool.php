@@ -34,7 +34,7 @@ class StructCodingSchool extends BaseBot
         : __DIR__ . '/../../../../lfsrepo/coding-school';
 
     private array $pls = [
-            'html',
+            'html' => 'HTML',
 //            'css',
 //            'js',
 //        'php' => 'PHP',
@@ -71,6 +71,8 @@ class StructCodingSchool extends BaseBot
             if (!$this->isWindows && (time() - $this->ts > 500)) {
                 break;
             }
+
+            Assert::true(pf_is_string_filled($pl));
 
             $plfile = "$this->dir/$pl.yaml";
 
