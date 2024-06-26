@@ -258,12 +258,24 @@ class StructCodingSchool extends BaseBot
     {
         if (file_exists($tofile)) {
             $this->info("$tofile exists!");
+
+            $slug = str_replace('.md', '', array_reverse(explode('/', $tofile))[0]);
+            if (DB::connection('mysql')->table('tutorial')
+                ->where([
+                    't0' => $t0,
+                    'slug' => $slug,
+                ])
+                ->exists()) {
+                $this->warn("$slug 已存在！");
+                return true;
+            }
+
             DB::connection('mysql')->table('tutorial')->insert([
                 't0' => $t0,
                 't1' => $t1,
                 't2' => $t2,
                 'title' => $title,
-                'slug' => str_replace('.md', '', array_reverse(explode('/', $tofile))[0]),
+                'slug' => $slug,
                 'mdc' => file_get_contents($tofile),
                 'created_at' => pf_date_format(),
             ]);
